@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: лента пути из шагов</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* шапка: слева заголовок и строка, справа стрелки; лента ниже уходит за край экрана */
+.rt-h{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:32px}
+.rt-nav{display:flex;gap:8px;flex:none}
+.rt-nav button{height:46px;padding:0 24px;border-radius:99px;background:color-mix(in srgb,var(--acc) 15%,var(--card));color:var(--acc);font-size:14.5px;font-weight:700;transition:background .45s,color .45s}
+.rt-nav button:hover{background:var(--acc);color:var(--acc-ink)}
+/* лента: левый край ровно по сетке страницы, правый – до края экрана */
+.rt-track{--side:max(20px,calc((100vw - 1180px) / 2));display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 var(--side);padding:4px var(--side) 6px;scrollbar-width:none;cursor:grab;overscroll-behavior-x:contain}
+.rt-track::-webkit-scrollbar{display:none}
+.rt-track.drag{cursor:grabbing}
+.rt-c{flex:none;width:300px;scroll-snap-align:start;padding:10px 10px 20px;border-radius:24px;background:var(--card);user-select:none}
+.rt-ph{position:relative;display:block;height:220px;border-radius:16px;overflow:hidden}
+.rt-ph .ph{position:absolute;inset:0;border-radius:0;transition:transform 1.2s var(--ease)}
+@media (hover:hover){.rt-c:hover .rt-ph .ph{transform:scale(1.06)}}
+.rt-n{position:absolute;z-index:1;left:12px;top:12px;height:30px;padding:0 11px;border-radius:6px;background:var(--card);color:var(--acc);font:800 12.5px/30px system-ui,sans-serif}
+.rt-c b{display:block;margin:18px 10px 0;font:800 15px/1.2 system-ui,sans-serif;text-transform:uppercase;text-wrap:balance}
+.rt-c small{display:block;margin:8px 10px 0;font-size:14px;line-height:1.45;color:var(--mut)}
+/* под лентой: полоса прогресса (доля видимого + положение) и ссылка на весь путь */
+.rt-ctl{display:flex;align-items:center;gap:30px;margin-top:28px}
+.rt-bar{position:relative;flex:1;height:3px;border-radius:3px;background:var(--line);overflow:hidden}
+.rt-bar i{position:absolute;inset:0;background:var(--ink);transform-origin:0 0;transform:scaleX(var(--p,.25))}
+.lnk{font-size:14.5px;font-weight:700;text-decoration:underline;text-decoration-color:var(--acc);text-decoration-thickness:1.5px;text-underline-offset:5px;transition:color .4s;white-space:nowrap}
+.lnk:hover{color:var(--acc)}
+
+@media (max-width:760px){
+  .rt-h{flex-direction:column;align-items:flex-start;gap:16px;margin-bottom:22px}
+  .rt-nav{display:none}
+  .rt-track{--side:16px;gap:10px;touch-action:pan-x pan-y}
+  .rt-c{width:260px;padding:8px 8px 16px;border-radius:20px}
+  .rt-ph{height:190px;border-radius:14px}
+  .rt-c b{font-size:14px}.rt-c small{font-size:13.5px}
+  .rt-ctl{margin-top:20px}
+}
+</style>
+</head>
+<body>
+<section class="sec">
+  <div class="wrap rt-h">
+    <div><h2 class="h2 rv">Вопрос-крючок для тех, кто не готов: <em>начните с пути</em></h2>
+    <p class="lead rv">Строка: сколько шагов и что человек получит, выбрав свой – что решать сейчас и где ошибаются чаще всего</p></div>
+    <div class="rt-nav rv"><button class="prev" type="button">Назад</button><button class="next" type="button">Дальше</button></div>
+  </div>
+  <div class="rt-wrap rv">
+    <div class="rt-track" id="rt"></div>
+    <div class="wrap rt-ctl"><span class="rt-bar"><i></i></span><a class="lnk" href="#put">Весь путь</a></div>
+  </div>
+</section>
+
+<script type="application/json" id="meta">
+{
+  "id": "put-lenta",
+  "nazvanie": "Лента пути из шагов",
+  "tip": "PROC",
+  "etap": "UNDERSTAND",
+  "vopros": "Я ещё даже не начал – с чего вообще всё начинается?",
+  "smysl": "Большая часть посетителей ещё не готова покупать: им страшно, потому что непонятен путь целиком. Лента раскладывает его на 12 шагов с номерами, у каждого – кадр, название и один вопрос, который он закрывает. Человек находит свой шаг, читает гид и возвращается уже с пониманием. Компания становится проводником раньше, чем продавцом.",
+  "setka_d": "Шапка в сетке страницы: заголовок и строка слева (до 8 из 12), стрелки «Назад / Дальше» справа, по нижней линии текста. Лента выходит из сетки: левый край совпадает с колонкой 1, правый уходит за край экрана, видно 3,5–4 карточки по 300–310 px с зазором 16–18 px. Карточка: кадр 220–230 px с номером в левом верхнем углу, название, строка. Под лентой в сетке: полоса прогресса на всю ширину и ссылка «Весь путь» справа.",
+  "setka_m": "Заголовок и строка – 4 из 4, стрелок нет. Лента от отступа 16 px до края экрана: карточка 260 px, зазор 10 px, видна одна целиком и край следующей – это подсказка листать. Под лентой полоса прогресса и ссылка «Весь путь».",
+  "animaciya": [
+    "Заголовок, строка, стрелки и вся лента целиком появляются при прокрутке: сдвиг 34 px + прозрачность, 1,1 с, шаг 80 мс; карточки внутри ленты отдельно не прыгают",
+    "Стрелка «Дальше / Назад» листает плавно на 2 карточки (шаг считается от расстояния между первыми двумя карточками), после чего срабатывает привязка к краю карточки",
+    "Полоса прогресса на каждом событии прокрутки: длина = доля видимого + положение × (1 – доля видимого); в конце ленты она полная",
+    "Мышью ленту можно тащить: при нажатии привязка выключается, при отпускании включается и лента доезжает до ближайшей карточки; если сдвинули больше 6 px, клик по карточке не срабатывает",
+    "Наведение мышью на карточку: кадр приближается до 106 % за 1,2 с; на тач-экранах этого нет"
+  ],
+  "kak_rabotaet": [
+    "Лента – обычная горизонтальная прокрутка с scroll-snap-type: x mandatory; на телефоне листается пальцем без скрипта",
+    "Перетаскивание включается только для точного указателя (мышь): на тач-экранах работает родная прокрутка",
+    "Каждая карточка – ссылка на свой раздел гида (#shag-N), ссылка под лентой – на гид целиком",
+    "Левый отступ ленты равен полю сетки страницы, поэтому первая карточка стоит ровно под заголовком",
+    "В коде образца шаг стрелок на узком экране – 1 карточка, но на телефоне стрелки скрыты, листают пальцем"
+  ],
+  "kogda": "Длинная сложная покупка, к которой готовятся месяцами: стройка, ремонт, переезд, лечение, обучение. Когда есть гид или статьи на каждый шаг, куда карточки могут вести.",
+  "ne_kogda": "Если шагов 3–4 – их лучше показать сеткой целиком, без ленты. Если за карточками нет страниц, лента превращается в красивую витрину без пользы. Не для простых покупок, где путь очевиден.",
+  "u_cerusa": "Заголовок «Ещё не строите? Начните с пути», строка про двенадцать шагов от участка до окон. 12 карточек с номерами 01–12: Старт, Участок, Подрядчик и проект, Деньги и документы, Подготовка участка, Фундамент, Стены, Фасад, Перекрытия, Кровля, Вентиляция, Окна и двери; у каждой фото-сцена и строка-вопрос. Карточки ведут на гид «Путь к дому» к своему шагу, ссылка «Весь путь» – на гид целиком. Стрелки «Назад» и «Дальше» – светло-зелёные пилюли.",
+  "sled": "Вопросы до встречи (faq-akkordeon): после пути остаются частные страхи – цена, сроки, договор.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 680, "m": 720},
+  "cerus_blok": 11
+}
+</script>
+<script>
+(function () {
+  var K = Kit, rt = K.$('#rt'), bar = K.$('.rt-bar i'), h = '';
+  for (var i = 1; i <= 12; i++) {
+    var n = (i < 10 ? '0' : '') + i;
+    h += '<a class="rt-c" href="#shag-' + i + '"><span class="rt-ph"><span class="ph" data-l="Кадр-сцена шага ' + n + '"></span><span class="rt-n">' + n + '</span></span><b>Название шага ' + n + '</b><small>Строка: какой вопрос закрывает этот шаг</small></a>';
+  }
+  rt.innerHTML = h;
+  var rc = K.$$('.rt-c', rt);
+
+  // прогресс: доля видимого + положение в оставшейся части
+  function upd() {
+    var vis = rt.clientWidth / rt.scrollWidth, max = rt.scrollWidth - rt.clientWidth, k = max > 0 ? rt.scrollLeft / max : 1;
+    bar.style.setProperty('--p', (vis + k * (1 - vis)).toFixed(3));
+  }
+  rt.addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
+
+  // стрелки: шаг – две карточки, на узком экране – одна
+  function step() { return (rc[1].offsetLeft - rc[0].offsetLeft) * (K.mob() ? 1 : 2) }
+  var beh = K.reduce ? 'auto' : 'smooth';
+  K.$('.rt-nav .next').addEventListener('click', function () { rt.scrollBy({ left: step(), behavior: beh }) });
+  K.$('.rt-nav .prev').addEventListener('click', function () { rt.scrollBy({ left: -step(), behavior: beh }) });
+
+  // перетаскивание мышью; после сдвига больше 6 px клик по карточке гасится
+  if (K.fine) {
+    var dn = false, x0 = 0, s0 = 0, moved = 0;
+    rt.addEventListener('pointerdown', function (e) { if (e.button) return; dn = true; moved = 0; x0 = e.clientX; s0 = rt.scrollLeft; rt.style.scrollSnapType = 'none'; rt.classList.add('drag') });
+    addEventListener('pointermove', function (e) { if (!dn) return; moved = Math.abs(e.clientX - x0); rt.scrollLeft = s0 - (e.clientX - x0) });
+    addEventListener('pointerup', function () { if (!dn) return; dn = false; rt.style.scrollSnapType = ''; rt.classList.remove('drag') });
+    rt.addEventListener('click', function (e) { if (moved > 6) { e.preventDefault(); e.stopPropagation() } }, true);
+    rt.addEventListener('dragstart', function (e) { e.preventDefault() });
+  }
+  K.reveal('.rv');
+})();
+</script>
+</body>
+</html>

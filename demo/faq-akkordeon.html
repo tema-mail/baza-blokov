@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: вопросы до встречи</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* слева липкая колонка (заголовок + фото человека с плашкой связи), справа аккордеон */
+.fq{display:grid;grid-template-columns:420px minmax(0,1fr);gap:24px}
+.fq-l{position:sticky;top:24px;align-self:start}
+.fq-card{position:relative;margin-top:30px;height:min(520px,calc(100vh - 150px));min-height:420px;border-radius:24px;overflow:hidden}
+.fq-card>.ph{position:absolute;inset:0;border-radius:0}
+.fq-in{position:absolute;left:12px;right:12px;bottom:12px;padding:18px;border-radius:14px}
+.fq-in small{display:block;font-size:12.5px;color:var(--mut)}
+.fq-tel{display:block;margin:6px 0 14px;font:800 20px/1.2 system-ui,sans-serif}
+/* карточка вопроса: вся закрытая карточка – зона клика */
+.facc{display:flex;flex-direction:column;gap:8px}
+.facc details{background:var(--card);border-radius:22px;overflow:hidden;cursor:pointer}
+.facc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 24px;font:800 15px/1.35 system-ui,sans-serif;text-transform:uppercase;text-wrap:balance;transition:color .4s}
+.facc summary::-webkit-details-marker{display:none}
+.facc details:hover summary{color:var(--acc)}
+/* плюс/минус: две полоски, вертикальная поворачивается в горизонталь за 0,5 с */
+.pm{position:relative;flex:none;width:42px;height:42px;border-radius:50%;background:color-mix(in srgb,var(--acc) 15%,var(--card));color:var(--acc);transition:background .45s,color .45s}
+.pm::before,.pm::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:2px;margin:-1px 0 0 -7px;border-radius:2px;background:currentColor;transition:transform .5s var(--ease)}
+.pm::after{transform:rotate(90deg)}
+.facc details[open] .pm{background:var(--acc);color:var(--acc-ink)}
+.facc details[open] .pm::after{transform:rotate(0)}
+.facc details>div{padding:0 24px;overflow:hidden;cursor:auto}
+.facc details>div p{padding-bottom:22px;max-width:680px;font-size:15px;line-height:1.6;color:var(--mut);text-wrap:pretty}
+
+@media (max-width:760px){
+  .fq{grid-template-columns:1fr;gap:14px}
+  .fq-l{position:static}
+  /* на телефоне фото с плашкой убрано, как у образца: связь есть в таб-баре и в форме ниже */
+  .fq-card{display:none}
+  .facc summary{padding:18px;font-size:13px;gap:14px}
+  .pm{width:36px;height:36px}
+  .facc details{border-radius:18px}
+  .facc details>div{padding:0 18px}
+  .facc details>div p{font-size:14.5px;padding-bottom:18px}
+}
+</style>
+</head>
+<body>
+<section class="sec"><div class="wrap fq">
+  <div class="fq-l">
+    <h2 class="h2 rv">Что спрашивают <em>до первой встречи</em></h2>
+    <div class="fq-card rv">
+      <div class="ph" data-l="Портрет руководителя на рабочем месте, лицо в верхней трети"></div>
+      <div class="fq-in glass"><small>Подводка: удобнее позвонить самим</small><a class="fq-tel" href="#">+7 (000) 000-00-00</a>
+        <a class="btn wide" href="#">Договориться о встрече<i>→</i></a></div>
+    </div>
+  </div>
+  <div class="facc">
+    <details class="rv" open><summary>Вопрос о цене: сколько это стоит?<i class="pm"></i></summary><div><p>Ответ называет, что входит в цену «от», и от чего зависит точная сумма. Без «звоните – расскажем»: человек должен уйти с понятной логикой цены</p></div></details>
+    <details class="rv"><summary>Вопрос о росте цены по ходу работ<i class="pm"></i></summary><div><p>Ответ: на чём основана цена в договоре и при каких условиях она может измениться. Ссылка на страницу с разбором договора, если она есть</p></div></details>
+    <details class="rv"><summary>Вопрос о сорванных сроках<i class="pm"></i></summary><div><p>Ответ: где записан график и что компания платит за просрочку. Число и единица измерения – прямо в тексте</p></div></details>
+    <details class="rv"><summary>Можно ли посчитать заочно, по фото или в переписке?<i class="pm"></i></summary><div><p>Честный ответ «нет» с причиной и тем, что делаем вместо: встреча, затем расчёт в названный срок</p></div></details>
+    <details class="rv"><summary>Возражение: частник сделает дешевле<i class="pm"></i></summary><div><p>Ответ без нападок: чего частник не даст – договора с гарантией, актов, работы с банком. Факт, а не обещание</p></div></details>
+    <details class="rv"><summary>Вопрос о покупке в кредит<i class="pm"></i></summary><div><p>Короткое «да» или «нет», с кем работаем и где ограничения. Подробности – ссылкой на свою страницу</p></div></details>
+    <details class="rv"><summary>Вопрос о своих материалах<i class="pm"></i></summary><div><p>Правило и исключения из него: что клиент может выбрать и купить сам, а за что компания отвечает целиком</p></div></details>
+    <details class="rv"><summary>Вопрос о географии работ<i class="pm"></i></summary><div><p>Город и радиус в километрах. Если дальние заказы берут не всегда – так и сказано</p></div></details>
+  </div>
+</div></section>
+
+<script type="application/json" id="meta">
+{
+  "id": "faq-akkordeon",
+  "nazvanie": "Вопросы до встречи с человеком рядом",
+  "tip": "RISK",
+  "etap": "REDUCE RISK",
+  "vopros": "Сколько это будет стоить, не вырастет ли цена и что, если сорвут сроки?",
+  "smysl": "Перед звонком у человека остаётся пять-восемь страхов, которые он стесняется озвучить. Блок отвечает на них заранее и прямо: цифрами, правилами договора, честным «нет». Рядом всё время стоит живой человек с телефоном и кнопкой: если ответа не хватило, спросить можно сразу у того, кто отвечает за работу.",
+  "setka_d": "Две колонки: левая около 4 из 12 (420–460 px), правая – остальные 8. Левая липкая: заголовок, под ним фото человека в рост колонки (до 520–560 px, но не выше экрана) со стеклянной плашкой внизу – подводка, телефон, кнопка во всю ширину. Справа столбец карточек-вопросов с зазором 8 px; в закрытой карточке вопрос слева и круглый плюс справа, ответ раскрывается под вопросом шириной до 680–720 px.",
+  "setka_m": "Одна колонка 4 из 4: заголовок, сразу под ним аккордеон. Фото с плашкой связи на телефоне у образца скрыто: телефон и связь на телефоне держат таб-бар и форма ниже. Карточки с отступом 18 px, плюс 36 px.",
+  "animaciya": [
+    "Заголовок, фото с плашкой и каждая карточка появляются при прокрутке: сдвиг 34 px + прозрачность, 1,1 с, шаг 80 мс; плашка со стеклом – только сдвигом",
+    "Открытие: высота ответа от 0 до своей + прозрачность от 0 до 1 за 0,5 с, кривая с мягким концом",
+    "Закрытие: высота и прозрачность к 0 за 0,42 с, карточка закрывается по окончании анимации",
+    "Плюс превращается в минус: вертикальная полоска поворачивается на 90° за 0,5 с, кружок заливается акцентом за 0,45 с",
+    "Наведение мышью: вопрос меняет цвет на акцентный за 0,4 с",
+    "Пока идёт анимация, повторные клики игнорируются; страховка снимает блокировку через 0,7 с"
+  ],
+  "kak_rabotaet": [
+    "Каждый вопрос – родной элемент details/summary: работает без скрипта, с клавиатуры и читается поиском и нейросетями",
+    "Клик по заголовку перехватывается и запускает анимацию высоты; клик в любом месте закрытой карточки тоже открывает её, а по тексту открытого ответа – нет, чтобы его можно было выделить",
+    "Первый вопрос открыт сразу: человек видит, что ответы настоящие, и понимает механику без подсказки",
+    "Левая колонка прилипает к верху экрана, пока листаются вопросы; высота фото ограничена высотой окна",
+    "При prefers-reduced-motion карточки открываются и закрываются мгновенно"
+  ],
+  "kogda": "Перед формой заявки на дорогую услугу, где есть устойчивые страхи: цена, рост цены, сроки, кредит, своя бригада. Когда ответы можно дать цифрами и правилами, а не общими словами.",
+  "ne_kogda": "Если ответы – «звоните, расскажем»: такой блок вредит. Больше 8–10 вопросов – это уже отдельная страница вопросов. Без реального человека на фото левую колонку лучше заменить простой плашкой связи.",
+  "u_cerusa": "Заголовок «Что спрашивают до встречи». Слева фото директора в офисе, на стеклянной плашке подводка «Удобнее позвонить самим», телефон офиса и кнопка «Договориться о встрече» к форме. Восемь вопросов: сколько стоит дом, если цена вырастет по ходу стройки, что если сорвут сроки (неустойка 0,1 % в день, до 10 %), можно ли посчитать по фото, зачем подрядчик, если бригада дешевле, строят ли в ипотеку, можно ли из своих материалов, где строят (до 150 км от города). На телефоне фото с плашкой скрыто.",
+  "sled": "Форма «Начнём с разговора» (forma-razgovor): страхи сняты – следующий шаг оставить телефон.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 820, "m": 720},
+  "cerus_blok": 12
+}
+</script>
+<script>
+(function () {
+  var K = Kit, EASE = 'cubic-bezier(.22,1,.36,1)';
+  K.$$('.facc details').forEach(function (det) {
+    var sum = K.$('summary', det), body = K.$('div', det), busy = false;
+    function toggle() {
+      if (busy) return;
+      if (K.reduce) { det.open = !det.open; return }
+      busy = true;
+      if (!det.open) {
+        det.open = true;
+        var a = body.animate([{ height: '0px', opacity: 0 }, { height: body.scrollHeight + 'px', opacity: 1 }], { duration: 500, easing: EASE });
+        a.onfinish = a.oncancel = function () { busy = false };
+      } else {
+        var b = body.animate([{ height: body.scrollHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 420, easing: EASE });
+        b.onfinish = b.oncancel = function () { det.open = false; busy = false };
+      }
+      setTimeout(function () { busy = false }, 700);
+    }
+    sum.addEventListener('click', function (e) { e.preventDefault(); toggle() });
+    det.addEventListener('click', function (e) { if (!det.open && !sum.contains(e.target)) toggle() });
+  });
+  K.reveal('.fq-l>h2,.facc .rv');
+  K.reveal('.fq-card', { glass: true });
+})();
+</script>
+</body>
+</html>

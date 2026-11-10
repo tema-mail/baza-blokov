@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: форма «Начнём с разговора»</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* форма поверх фото: верх кадра (небо) держит заголовок и поля, объект – внизу */
+.talk{padding:56px 12px 0}
+.tk-box{position:relative;height:660px;border-radius:32px;overflow:hidden;isolation:isolate;background:var(--soft)}
+.tk-box::after{content:"";position:absolute;inset:0;z-index:5;border-radius:inherit;box-shadow:inset 0 0 0 8px var(--paper);pointer-events:none}
+.tk-ph{position:absolute;inset:-34px 0;z-index:-1;border-radius:0;will-change:transform}
+.tk-ph::after{place-items:end center;padding-bottom:60px}
+.tk-top{position:relative;z-index:2;max-width:840px;margin-left:16%;padding:56px 24px 0 0}
+.tk-top .lead{max-width:none;color:var(--ink);opacity:.82}
+.tk-top .lead b{opacity:1}
+.tk-form{position:relative;margin-top:26px}
+.fm{display:grid;grid-template-columns:1fr 1fr 220px;gap:10px;align-items:start;transition:opacity .4s}
+/* поле: иконка-квадрат слева, подпись внутри уезжает вверх при фокусе и вводе */
+.fld{position:relative;display:block}
+.fld-ic{position:absolute;z-index:1;left:8px;top:8px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 15%,var(--card));color:var(--acc);pointer-events:none;transition:background .35s,color .35s;font-style:normal;font-weight:800}
+.fld:focus-within .fld-ic{background:var(--acc);color:var(--acc-ink)}
+.fld input{width:100%;height:56px;padding:18px 16px 0 60px;border:0;border-radius:14px;background:var(--card);font-size:16px;font-weight:600;outline:none;box-shadow:0 14px 34px rgb(30 60 90/.12);transition:box-shadow .3s}
+.fld input:focus{box-shadow:0 0 0 2px var(--acc),0 14px 34px rgb(30 60 90/.12)}
+.fld span{position:absolute;left:60px;top:17px;font-size:15px;color:var(--mut);pointer-events:none;transform-origin:0 0;transition:transform .35s var(--ease)}
+.fld input:focus+span,.fld input:not(:placeholder-shown)+span{transform:translateY(-10px) scale(.74)}
+.err{position:absolute;left:10px;top:62px;font-style:normal;font-size:12.5px;font-weight:700;color:#d2541f;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.fld.bad input{box-shadow:0 0 0 2px #f0a07a,0 14px 34px rgb(30 60 90/.12)}
+.fld.bad .err{opacity:1}
+.fm .btn{display:flex;width:100%;height:56px}
+.fm.busy .btn{opacity:.6;pointer-events:none}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+/* согласие: пустая галочка, без неё кнопка не отправляет */
+.ok{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-top:16px;font-size:13.5px;cursor:pointer}
+.ok input{position:absolute;opacity:0;pointer-events:none}
+.ok i{flex:none;width:22px;height:22px;border-radius:7px;background:var(--card);display:grid;place-items:center;color:transparent;font-style:normal;font-size:13px;font-weight:800;transition:background .3s,color .3s}
+.ok input:checked+i{background:var(--acc);color:var(--acc-ink)}
+.ok input:focus-visible+i{box-shadow:0 0 0 2px var(--acc)}
+.ok.bad i{box-shadow:0 0 0 2px #f0a07a}
+.ok a{text-decoration:underline;text-underline-offset:3px}
+/* «спасибо»: встаёт на место формы, форма гаснет */
+.tk-done{position:absolute;inset:0 0 auto;display:flex;align-items:flex-start;gap:16px;padding:16px 18px;border-radius:16px;background:var(--card);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .6s,transform .8s var(--ease)}
+.tk-ok{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:var(--acc-ink);font-weight:800}
+.tk-done b{display:block;font:800 17px/1.15 system-ui,sans-serif;text-transform:uppercase}
+.tk-done small{display:block;margin-top:4px;font-size:13.5px;color:var(--mut)}
+.tk-data{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin-top:10px;font:12px/1.45 ui-monospace,Menlo,monospace;color:var(--mut)}
+.tk-data dd{color:var(--ink);overflow-wrap:anywhere}
+.tk-form.sent .fm{opacity:0;pointer-events:none}
+.tk-form.sent .tk-done{opacity:1;pointer-events:auto;transform:none}
+
+/* под формой: что будет после встречи + цветная карточка контактов */
+.cl-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 12px 56px}
+.cl-box,.ct-box{position:relative;min-height:420px;border-radius:32px;overflow:hidden;isolation:isolate}
+.cl-box{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:24px;padding:36px 32px 32px 40px;background:var(--card)}
+.cl-t{display:flex;flex-direction:column;align-items:flex-start}
+.tg{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:9px;background:color-mix(in srgb,var(--acc) 15%,var(--card));color:var(--acc);font-size:12.5px;font-weight:700}
+.cl-t .h3,.ct-t .h3{margin-top:16px;font-size:22px;line-height:1.12;text-wrap:balance}
+.cl-t .h3 em{font-style:normal;color:var(--acc)}
+.cl-t p{margin:12px 0 26px;font-size:15px;color:var(--mut)}
+.cl-t .btn{margin-top:auto}
+.cl-art{position:relative}
+.cl-art .ph{position:absolute;left:0;right:-30px;top:50%;height:260px;margin-top:-130px;transform:rotate(-4deg);box-shadow:0 26px 30px rgb(20 20 20/.14);transition:transform 1.2s var(--ease)}
+@media (hover:hover){.cl-box:hover .cl-art .ph{transform:rotate(-2deg) translateY(-8px)}}
+.ct-box{display:flex;flex-direction:column;justify-content:space-between;padding:40px;background:var(--acc);color:#fff}
+.ct-box::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 70% at 100% 0,rgb(255 255 255/.14),transparent 70%)}
+.ct-box .tg{background:rgb(255 255 255/.22);color:#fff}
+.ct-t .h3 em{font-style:normal;color:#0c3a1d}
+.ct-t p{margin-top:12px;max-width:420px;font-size:15px;color:rgb(255 255 255/.88)}
+.ct-l{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+.ct-c{display:flex;align-items:center;gap:16px;padding:10px 22px 10px 10px;border-radius:14px}
+.ct-c i{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:10px;background:var(--acc);color:#fff;font-style:normal;font-weight:800}
+.ct-c small{display:block;font-size:12.5px;color:var(--mut);margin-bottom:3px}
+.ct-c b{display:block;font-size:14px;line-height:1.3}
+.ct-c a{display:block;font:800 20px/1.15 system-ui,sans-serif;white-space:nowrap}
+
+@media (max-width:760px){
+  .talk{padding:40px 8px 0}
+  .tk-box{height:auto;padding:36px 16px 320px;border-radius:28px}
+  .tk-box::after{box-shadow:inset 0 0 0 6px var(--paper)}
+  .tk-ph{inset:auto 0 0 0;height:560px;-webkit-mask:linear-gradient(transparent,#000 9%);mask:linear-gradient(transparent,#000 9%)}
+  .tk-top{max-width:none;margin:0;padding:0}
+  .tk-form{margin-top:22px}
+  .fm{grid-template-columns:1fr}
+  .fld-ic{width:46px;height:46px;border-radius:13px}
+  .fld input{height:62px;padding:20px 16px 0 66px}
+  .fld span{left:66px;top:20px}
+  .err{position:static;display:none;margin:6px 0 0 6px}
+  .fld.bad .err{display:block}
+  .fm .btn{height:62px}
+  .ok{margin-top:6px;align-items:flex-start}
+  .tk-done{inset:0 0 auto;min-height:100%;flex-direction:column;align-items:center;text-align:center}
+  .tk-data{text-align:left}
+  .cl-row{grid-template-columns:1fr;gap:8px;padding:8px 8px 40px}
+  .cl-box,.ct-box{min-height:0;padding:26px 18px 18px;border-radius:28px}
+  .cl-box{display:flex;flex-direction:column;gap:0}
+  .cl-t{display:contents}
+  .cl-box .tg{align-self:flex-start}
+  .cl-t p{margin-bottom:0}
+  .cl-art{order:2;height:220px;margin-top:20px}
+  .cl-art .ph{left:18%;right:18%;top:10px;height:200px;margin-top:0}
+  .cl-t .btn{order:3;display:flex;width:100%;margin-top:14px}
+  .ct-l{margin-top:22px;gap:8px}
+  .ct-c{padding:10px 14px 10px 10px;border-radius:12px}
+  .ct-c a{font-size:min(19px,4.7vw)}
+}
+</style>
+</head>
+<body>
+<section class="talk" id="talk"><div class="tk-box">
+  <div class="ph tk-ph" aria-hidden="true" data-l="Фон: реальный кадр объекта, сверху чистое небо под заголовок и поля"></div>
+  <div class="tk-top">
+    <h2 class="h2 rv">Приглашение <em>к разговору</em></h2>
+    <p class="lead rv">Строка: что будет после заявки (позвоним и пригласим) и что взять на встречу – <b>три вещи, которые нужны для расчёта</b></p>
+    <div class="tk-form rv">
+      <form class="fm" novalidate>
+        <label class="fld"><i class="fld-ic">И</i><input name="name" autocomplete="name" placeholder=" " required><span>Ваше имя</span><em class="err">Напишите, как к вам обращаться</em></label>
+        <label class="fld"><i class="fld-ic">☎</i><input name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder=" " required><span>Номер телефона</span><em class="err">Номер нужен полностью</em></label>
+        <button class="btn" type="submit"><span class="t">Жду звонка</span><i>→</i></button>
+        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label class="ok"><input type="checkbox" name="agree"><i>✓</i><span>Согласен на <a href="#">обработку персональных данных</a></span></label>
+      </form>
+      <div class="tk-done" aria-live="polite"><span class="tk-ok">✓</span><span><b>Заявка принята</b><small>Следующий шаг: перезвоним в рабочее время и договоримся о встрече</small><dl class="tk-data"></dl></span></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="cl-row">
+  <article class="cl-box rv">
+    <div class="cl-t">
+      <small class="tg">Что будет после встречи</small>
+      <h3 class="h3">Обещание с точным сроком <em>после встречи</em></h3>
+      <p>Условие, когда обещание работает, и честное «чего не делаем», с причиной</p>
+      <a class="btn" href="#talk">Договориться о встрече<i>→</i></a>
+    </div>
+    <div class="cl-art" aria-hidden="true"><div class="ph" data-l="Предмет: документ-результат (смета, план)"></div></div>
+  </article>
+  <article class="ct-box rv">
+    <div class="ct-t">
+      <small class="tg">Контакты</small>
+      <h3 class="h3">Приглашение <em>в офис</em></h3>
+      <p>Строка: кто ведёт встречу – должность, без безымянного «менеджера»</p>
+    </div>
+    <div class="ct-l">
+      <div class="ct-c glass"><i>⌖</i><span><small>Офис</small><b>Город, улица, дом, офис, этаж</b></span></div>
+      <div class="ct-c glass"><i>☎</i><span><small>Удобнее позвонить самим</small><a href="#">+7 (000) 000-00-00</a></span></div>
+      <div class="ct-c glass"><i>@</i><span><small>Почта</small><a href="#" style="font-size:16px">pochta@primer.ru</a></span></div>
+    </div>
+  </article>
+</section>
+
+<script type="application/json" id="meta">
+{
+  "id": "forma-razgovor",
+  "nazvanie": "Форма «Начнём с разговора» и контакты",
+  "tip": "CTA",
+  "etap": "ACT",
+  "vopros": "Что от меня нужно, чтобы начать, и что будет дальше?",
+  "smysl": "Заявка – это не «оставьте контакты», а приглашение к разговору с понятной ценой входа: имя, телефон и три вещи, которые взять на встречу. Форма стоит на фото объекта – человек видит, ради чего пишет. Под ней две карточки снимают последние вопросы: что будет после встречи (с честным «чего не делаем») и куда ехать.",
+  "setka_d": "Форма – бокс почти во всю ширину экрана (отступ 12 px) высотой около 660–800 px, фото фоном, внутренняя рамка 8 px цветом страницы. Содержимое со сдвигом слева примерно на 2 колонки и шириной около 8 из 12: заголовок, строка, ниже в одну строку два поля по 1 fr и кнопка 220–230 px, под ними галочка согласия на всю ширину. Ниже две карточки 6 + 6 с зазором 12 px: белая (текст + предмет 240–270 px справа) и цветная (заголовок сверху, три плашки контактов снизу).",
+  "setka_m": "Бокс формы 4 из 4: заголовок, строка, поля и кнопка столбцом высотой 62 px, галочка; фото уходит в низ бокса (около 320 px видно) и сверху растворяется маской. Ниже карточки одна под другой: в белой порядок – текст, предмет, кнопка во всю ширину; в цветной – заголовок и три плашки столбцом.",
+  "animaciya": [
+    "Заголовок, строка, форма и обе карточки появляются при прокрутке: сдвиг 34 px + прозрачность, 1,1 с, шаг 80 мс; цветная карточка со стеклянными плашками – только сдвигом",
+    "Фон формы – мягкий параллакс по прокрутке: от −30 до +20 px, пока бокс проходит экран снизу доверху; только для мыши, на тач-экранах и при reduced-motion фон стоит",
+    "Поле в фокусе: подпись уезжает вверх и уменьшается за 0,35 с, иконка заливается акцентом, вокруг поля акцентная обводка",
+    "Ошибка: поле получает оранжевую обводку, под ним появляется текст ошибки за 0,3 с; при вводе ошибка снимается",
+    "Отправка: кнопка бледнеет до 60 % и не нажимается, пока идёт запрос; затем форма гаснет за 0,4 с, а «спасибо» поднимается на 10 px и проявляется за 0,6–0,8 с",
+    "Предмет в белой карточке при наведении мышью доворачивается с −4° до −2° и поднимается на 8 px за 1,2 с"
+  ],
+  "kak_rabotaet": [
+    "Маска телефона: при фокусе в пустое поле ставится «+7 (», при вводе цифры раскладываются в +7 (___) ___-__-__, первая 7 или 8 отбрасывается, при уходе из поля с одной «+7» поле очищается",
+    "Проверка при отправке: имя от 2 символов, в телефоне 11 цифр, галочка согласия стоит; пустая галочка – тоже ошибка с подсветкой. Атрибут novalidate отключает подсказки браузера, ошибки пишет сама форма",
+    "Скрытое поле-ловушка website: человек его не видит; если оно заполнено (бот), форма молча показывает «спасибо» и ничего не отправляет",
+    "С заявкой собираются: имя, телефон, согласие, тема, страница, заголовок страницы, реферер и метки utm_* и yclid из адреса (каждая до 100 символов)",
+    "В демо отправки нет: ответ сервера имитирует setTimeout 1,2 с, а в «спасибо» видно, что ушло бы. На сайте – POST в обработчик заявок, при ошибке под телефоном пишется запасной номер",
+    "«Спасибо» называет следующий шаг: когда перезвонят и о чём договорятся"
+  ],
+  "kogda": "Финальный призыв на главной или странице услуги, где первый шаг – встреча или звонок, а не покупка в корзине. Когда есть реальный кадр объекта с чистым верхом под текст.",
+  "ne_kogda": "Если для расчёта нужны вводные (площадь, тип, бюджет) – нужен квиз, а не две строки. Если фото пёстрое сверху, текст и поля на нём не читаются. Не ставить вторую такую же форму выше на странице.",
+  "u_cerusa": "Заголовок «Начнём с разговора», строка «позвоним и пригласим в офис» и три вещи для встречи: бюджет, участок или хотя бы район, пожелания к дому. Поля «Ваше имя» и «Номер телефона» с иконками, кнопка «Жду звонка», галочка согласия со ссылкой на страницу согласия. «Спасибо»: «Жду звонка» и «Перезвоним в рабочее время и договоримся о встрече». Фон – рендер одноэтажного дома с панорамным остеклением, небо сверху. Ниже: белая карточка «Расчёт дома» – «Пришлём расчёт через два-три дня после встречи», если проект выбран, по фото и переписке не считают; предмет – смета с ручкой, кнопка «Договориться о встрече». Зелёная карточка «Контакты» – «Приезжайте в офис», встречу ведёт основатель и директор; плашки «Офис», «Удобнее позвонить самим», «Почта».",
+  "sled": "Подвал сайта: после формы и контактов страница заканчивается, дальше только ссылки разделов.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 900, "m": 720},
+  "cerus_blok": 13
+}
+</script>
+<script>
+(function () {
+  var K = Kit, d = document, fm = K.$('.fm'), box = K.$('.tk-form');
+  var tel = fm.tel, nm = fm.name, telErr = K.$('.err', tel.closest('.fld')), telMsg = telErr.textContent;
+
+  function mask(v) {
+    var x = v.replace(/\D/g, '');
+    if (v.indexOf('+7') === 0) x = x.slice(1); else if (x.length === 11 && /^[78]/.test(x)) x = x.slice(1);
+    if (x.length === 1 && /[78]/.test(x)) x = '';
+    x = x.slice(0, 10);
+    var r = '+7 (' + x.slice(0, 3);
+    if (x.length > 3) r += ')'; if (x.length > 3) r += ' ' + x.slice(3, 6);
+    if (x.length > 6) r += '-' + x.slice(6, 8); if (x.length > 8) r += '-' + x.slice(8, 10);
+    return r;
+  }
+  tel.addEventListener('focus', function () { if (!tel.value) tel.value = '+7 (' });
+  tel.addEventListener('blur', function () { if (tel.value.replace(/\D/g, '').length <= 1) tel.value = '' });
+  tel.addEventListener('input', function () { tel.value = mask(tel.value); tel.closest('.fld').classList.remove('bad'); telErr.textContent = telMsg });
+  nm.addEventListener('input', function () { nm.closest('.fld').classList.remove('bad') });
+  fm.agree.addEventListener('change', function () { fm.agree.closest('.ok').classList.remove('bad') });
+
+  function done(data) {
+    var dl = K.$('.tk-data'), h = '';
+    Object.keys(data).forEach(function (k) {
+      var v = String(data[k] || '–').replace(/[&<>"]/g, function (c) { return '&#' + c.charCodeAt(0) + ';' });
+      h += '<dt>' + k + '</dt><dd>' + v + '</dd>';
+    });
+    dl.innerHTML = h; fm.classList.remove('busy'); box.classList.add('sent');
+  }
+
+  fm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ok = true;
+    if (nm.value.trim().length < 2) { nm.closest('.fld').classList.add('bad'); ok = false }
+    if (tel.value.replace(/\D/g, '').length < 11) { tel.closest('.fld').classList.add('bad'); ok = false }
+    if (!fm.agree.checked) { fm.agree.closest('.ok').classList.add('bad'); ok = false }
+    if (!ok || fm.classList.contains('busy')) return;
+    if (fm.website.value) { box.classList.add('sent'); return } // ловушка для ботов
+    var utm = {};
+    try { new URLSearchParams(location.search).forEach(function (v, k) { if (k.indexOf('utm_') === 0 || k === 'yclid') utm[k] = v.slice(0, 100) }) } catch (e1) {}
+    var data = { name: nm.value.trim(), phone: tel.value, agree: '1', topic: 'Договориться о встрече', page: location.pathname.split('/').pop(), title: d.title, referrer: d.referrer, utm: JSON.stringify(utm) };
+    fm.classList.add('busy'); K.$('.btn .t', fm).textContent = 'Отправляем…';
+    // имитация ответа сервера: настоящего запроса нет
+    setTimeout(function () { K.$('.btn .t', fm).textContent = 'Жду звонка'; done(data) }, 1200);
+  });
+
+  // параллакс фона: только мышь и без reduced-motion
+  if (K.fine && !K.reduce) {
+    var sec = K.$('.tk-box'), ph = K.$('.tk-ph'), raf = 0;
+    function par() {
+      raf = 0; var r = sec.getBoundingClientRect(), k = (innerHeight - r.top) / (innerHeight + r.height);
+      k = Math.max(0, Math.min(1, k)); ph.style.transform = 'translateY(' + (-30 + 50 * k).toFixed(1) + 'px)';
+    }
+    addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(par) }, { passive: true }); par();
+  }
+  K.reveal('.tk-top .rv,.cl-box');
+  K.reveal('.ct-box', { glass: true });
+})();
+</script>
+</body>
+</html>

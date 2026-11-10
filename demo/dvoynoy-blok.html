@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: два предложения рядом</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* две карточки 6 + 6; внутри каждой своя сетка: текст и фото, у второй – зеркально (фото слева) */
+.du-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.du-c{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.92fr);gap:24px;min-height:500px;padding:12px;border-radius:28px;background:var(--card)}
+.du-c.r{grid-template-columns:minmax(0,.92fr) minmax(0,1fr)}
+.du-t{display:flex;flex-direction:column;align-items:flex-start;padding:26px 6px 18px 22px}
+.du-c.r .du-t{padding:26px 22px 18px 6px}
+.du-k{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:9px;background:color-mix(in srgb,var(--acc) 15%,var(--card));color:var(--acc);font-size:12.5px;font-weight:700}
+.du-t .h3{margin-top:18px;font-size:24px;line-height:1.12}
+.du-m{display:block;margin-top:16px;font:800 40px/1 system-ui,sans-serif;letter-spacing:-.02em}
+.du-t p{margin-top:14px;font-size:14.5px;color:var(--mut);text-wrap:pretty}
+.du-t p b{color:var(--ink)}
+/* плитки-факты 2 × 2: у первой – логотипы партнёров, у второй – «что уже есть» с точкой */
+.du-f{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin:20px 0 22px}
+.du-f li{position:relative;display:flex;align-items:center;min-height:46px;padding:10px 12px;border-radius:14px;background:var(--soft);font-size:13.5px;font-weight:700}
+.du-f.lg li{justify-content:center;height:62px;color:var(--mut);font-weight:800;letter-spacing:.08em}
+.du-f.ok li{padding-left:32px}
+.du-f.ok li::before{content:"";position:absolute;left:13px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--acc)}
+.du-t .btn{margin-top:auto}
+/* фото во всю высоту карточки; наведение мышью – медленное приближение */
+.du-ph{position:relative;min-height:100%;border-radius:20px;overflow:hidden;background:none}
+.du-ph .ph{position:absolute;inset:0;border-radius:0;transition:transform 1.2s var(--ease)}
+@media (hover:hover){.du-c:hover .du-ph .ph{transform:scale(1.04)}}
+
+@media (max-width:760px){
+  .du-g{grid-template-columns:1fr;gap:10px}
+  .du-c,.du-c.r{grid-template-columns:1fr;gap:0;min-height:0;padding:8px;border-radius:24px}
+  /* у первой карточки фото поднимается наверх, у второй оно и так первое */
+  .du-c .du-ph{order:-1;height:230px;min-height:0;border-radius:18px}
+  .du-t,.du-c.r .du-t{padding:20px 12px 12px}
+  .du-t .h3{font-size:21px;margin-top:14px}
+  .du-m{font-size:32px;margin-top:12px}
+  .du-f.lg li{height:54px}
+  .du-t .btn{display:flex;width:100%;margin-top:0}
+}
+</style>
+</head>
+<body>
+<section class="sec"><div class="wrap du-g">
+  <article class="du-c rv">
+    <div class="du-t">
+      <small class="du-k">Метка: способ покупки</small>
+      <h3 class="h3">Первое предложение: купить в кредит</h3>
+      <p>Одна-две строки: с кем работаем и <b>главное условие жирным</b>. Ограничения не прячем – говорим, где обсуждаем лично</p>
+      <ul class="du-f lg"><li>ЛОГО 1</li><li>ЛОГО 2</li></ul>
+      <a class="btn" href="#">Как это устроено<i>→</i></a>
+    </div>
+    <div class="du-ph"><div class="ph" data-l="Кадр-сцена: момент сделки, передача ключей"></div></div>
+  </article>
+  <article class="du-c r rv">
+    <div class="du-ph"><div class="ph" data-l="Кадр: сам готовый объект снаружи"></div></div>
+    <div class="du-t">
+      <small class="du-k">Метка: готовое на продажу</small>
+      <b class="du-m">000,0 ед.</b>
+      <p>Вместо заголовка – главная цифра объекта. Строка: где он и что уже подключено</p>
+      <ul class="du-f ok"><li>Факт 1</li><li>Факт 2</li><li>Факт 3</li><li>Факт 4</li></ul>
+      <a class="btn" href="#">Смотреть объект<i>→</i></a>
+    </div>
+  </article>
+</div></section>
+
+<script type="application/json" id="meta">
+{
+  "id": "dvoynoy-blok",
+  "nazvanie": "Два предложения рядом",
+  "tip": "COM",
+  "etap": "EVALUATE",
+  "vopros": "А можно купить иначе – в кредит или сразу готовое?",
+  "smysl": "Часть людей отпадает не из-за цены, а из-за способа покупки: нет всей суммы сразу или нет сил ждать. Блок в одной строке закрывает обе дороги: слева – как купить в кредит и с кем это уже работает, справа – готовый объект, который можно смотреть хоть завтра. Две карточки равного веса: человек сам выбирает свою, и ни одна не выглядит запасным вариантом.",
+  "setka_d": "Две карточки 6 + 6 колонок с зазором 16–18 px, высота от 500 px. Внутри каждой – своя сетка из двух столбцов: текст 1 fr и фото 0,92 fr во всю высоту карточки. У второй карточки столбцы зеркальны: фото слева, текст справа, поэтому два фото встречаются в центре строки. Текст: метка-тег, заголовок (у второй – крупная цифра вместо заголовка), абзац, плитки-факты 2 × 2, кнопка прижата к низу карточки.",
+  "setka_m": "Карточки – 4 из 4, одна под другой с зазором 10 px. В каждой фото встаёт сверху (у первой его поднимают через order), высота 230 px, под ним метка, заголовок, абзац, плитки 2 в ряд и кнопка во всю ширину.",
+  "animaciya": [
+    "Обе карточки появляются при прокрутке: сдвиг 34 px снизу + прозрачность, 1,1 с, вторая позже на 80 мс",
+    "Наведение мышью на карточку: фото внутри медленно приближается до 104 % за 1,2 с; на тач-экранах приближения нет",
+    "По кнопке раз в 3,2 с бежит блик (общая кнопка комплекта)"
+  ],
+  "kak_rabotaet": [
+    "Каждая карточка – самостоятельное предложение со своей кнопкой и своей страницей; блок не прячет одно за другим",
+    "Плитки-факты у первой – логотипы партнёров (кто уже проверил компанию), у второй – что уже готово, с цветной точкой",
+    "Зеркальная сетка задаётся одним классом у второй карточки: меняется порядок столбцов и внутренние отступы",
+    "Кнопка стоит в конце колонки через margin-top:auto, поэтому кнопки двух карточек всегда на одной линии"
+  ],
+  "kogda": "Дорогая покупка, где способ оплаты или срок ожидания – отдельный страх: дома, ремонт, техника, авто, обучение. Когда у компании реально есть оба пути: аккредитация в банках или рассрочка и готовый объект или товар в наличии.",
+  "ne_kogda": "Если второго предложения нет и его придумывают ради симметрии. Если предложений больше двух – это уже каталог или тарифы. Не ставить на первый экран: блок работает, когда человек уже понял, что ему нравится продукт.",
+  "u_cerusa": "Секция «sale». Левая карточка: метка «Ипотека», заголовок «Дом в ипотеку», текст об аккредитации в Сбербанке и Россельхозбанке и о том, что по семейной ипотеке строят ограниченно, плитки – логотипы двух банков, кнопка «Как это устроено» на страницу про ипотеку. Правая: метка «Готовый дом на продажу», вместо заголовка – площадь 155,8 м², текст про посёлок и участок девять соток, плитки «Газ», «Скважина», «Септик», «Отопление» с зелёной точкой, кнопка «Смотреть дом». Фото: передача ключей над столом с договором и фасад готового дома.",
+  "sled": "Лента пути из шагов (put-lenta): кто ещё не готов покупать, получает дорогу «с чего начать».",
+  "vid": ["d", "m"],
+  "vysota": {"d": 640, "m": 720},
+  "cerus_blok": 10
+}
+</script>
+<script>
+Kit.reveal('.rv');
+</script>
+</body>
+</html>

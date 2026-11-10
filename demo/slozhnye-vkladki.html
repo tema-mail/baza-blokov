@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: тёмные вкладки с миниатюрами и большим фото</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+body{padding:12px 0}
+/* тёмный блок: всегда тёмный, в любой теме */
+.dk{position:relative;isolation:isolate;overflow:hidden;margin:0 12px;padding:96px 0 104px;border-radius:32px;color:#fff;background:radial-gradient(50% 45% at 82% 0,rgb(255 255 255/.07),transparent 70%),linear-gradient(165deg,#1a1b1e,#121315 45%,#0d0e0f)}
+.dk .h2 em{color:#3ccf8a}
+.dk .lead{color:rgb(255 255 255/.62)}
+.hd-top{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;padding:0 48px}
+.hd-h{max-width:620px}
+/* плашка «зачем это знать»: стекло на тёмном */
+.why{display:flex;align-items:center;gap:16px;max-width:420px;padding:18px 22px;border-radius:22px;background:rgb(255 255 255/.07);box-shadow:inset 0 0 0 1px rgb(255 255 255/.08);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);font-size:14.5px;line-height:1.5;color:rgb(255 255 255/.7)}
+.why b{color:#fff}
+.why .ph{flex:none;width:56px;height:56px;min-height:0;border-radius:14px;background:#f2f2ee}
+.why .ph::after{color:#6b706c;font-size:10px}
+
+/* вкладки: 5 колонок список, 7 колонок фото */
+.hx{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:24px;margin-top:44px;padding:0 48px}
+.hx-list{display:flex;flex-direction:column;gap:8px}
+.hx-i{position:relative;display:flex;align-items:center;gap:18px;width:100%;padding:12px 20px 12px 12px;border-radius:22px;text-align:left;color:#fff;background:rgb(255 255 255/.05);transition:background .5s}
+.hx-i::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:3px;border-radius:3px;background:var(--acc);transform:scaleY(0);transition:transform .5s var(--ease)}
+.hx-th{flex:none;width:104px;height:84px;border-radius:12px;background:linear-gradient(160deg,var(--a),var(--b));filter:grayscale(1) brightness(.75);transition:filter .6s}
+.hx-tx{display:flex;flex-direction:column;justify-content:center}
+.hx-tx b{display:block;font:800 22px/1 system-ui,sans-serif;text-transform:uppercase;color:rgb(255 255 255/.55);transition:color .5s}
+.hx-tx small{display:block;margin-top:6px;font-size:13.5px;line-height:1.45;color:rgb(255 255 255/.42);transition:color .5s}
+.hx-i.on{background:rgb(255 255 255/.1)}
+.hx-i.on::before{transform:none}
+.hx-i.on .hx-th{filter:none}
+.hx-i.on .hx-tx b{color:#fff}
+.hx-i.on .hx-tx small{color:rgb(255 255 255/.7)}
+@media (hover:hover){.hx-i:hover .hx-th{filter:grayscale(.3)}.hx-i:hover .hx-tx b{color:rgb(255 255 255/.85)}}
+/* большое фото: кадры стопкой, активный проявляется и «оседает» из 1,05 */
+.hx-ph{position:relative;min-height:440px;border-radius:28px;overflow:hidden;background:#1d2022}
+.hx-ph>span{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:rgb(255 255 255/.7);background:linear-gradient(160deg,var(--a),var(--b));opacity:0;transform:scale(1.05);transition:opacity .8s,transform 1.4s var(--ease)}
+.hx-ph>span.on{opacity:1;transform:none}
+.hx-bar{position:absolute;z-index:2;left:24px;right:24px;bottom:22px;height:3px;border-radius:3px;background:rgb(255 255 255/.25);overflow:hidden}
+.hx-bar i{position:absolute;inset:0;background:#fff;transform-origin:0 0;transform:scaleX(0)}
+.hx-bar i.run{animation:hxbar 5s linear forwards}
+@keyframes hxbar{to{transform:scaleX(1)}}
+
+@media (max-width:760px){
+  .dk{margin:0 8px;padding:56px 0 64px;border-radius:28px}
+  .hd-top{flex-direction:column;align-items:stretch;gap:20px;padding:0 20px}
+  .why{max-width:none;padding:16px;font-size:14px}
+  .why .ph{width:46px;height:46px}
+  .hx{grid-template-columns:1fr;gap:10px;margin-top:26px;padding:0 12px}
+  .hx-ph{order:-1;min-height:0;height:260px;border-radius:22px}
+  .hx-i{padding:8px 14px 8px 8px;gap:14px;border-radius:18px}
+  .hx-th{width:76px;height:62px}
+  .hx-tx b{font-size:18px}
+  .hx-tx small{font-size:13px;margin-top:4px}
+}
+</style>
+</head>
+<body>
+<section class="dk">
+  <div class="hd-top">
+    <div class="hd-h">
+      <b class="h2 rv">Сложные задачи <em>тоже наши</em></b>
+      <p class="lead rv">Какие трудные случаи берёте и почему справляетесь: одной-двумя фразами, без «мы лучшие»</p>
+    </div>
+    <p class="why rv"><span class="ph" data-l="Знак"></span><span>Зачем это знать, если у вас простая задача: <b>с вашим заказом работают те же люди и по тем же правилам</b></span></p>
+  </div>
+  <div class="hx">
+    <div class="hx-list rv" role="tablist">
+      <button class="hx-i on" type="button" role="tab" aria-selected="true" style="--a:#6f8f7c;--b:#2c3a31"><span class="hx-th"></span><span class="hx-tx"><b>Масштаб</b><small>Самая крупная работа: что и когда сдали</small></span></button>
+      <button class="hx-i" type="button" role="tab" aria-selected="false" style="--a:#8a7f70;--b:#3a332b"><span class="hx-th"></span><span class="hx-tx"><b>Сложное место</b><small>Работа в трудных условиях: чем было трудно</small></span></button>
+      <button class="hx-i" type="button" role="tab" aria-selected="false" style="--a:#6f8296;--b:#2a323c"><span class="hx-th"></span><span class="hx-tx"><b>Комплекс</b><small>Несколько работ одним заказом: что входило</small></span></button>
+      <button class="hx-i" type="button" role="tab" aria-selected="false" style="--a:#94817f;--b:#3c2f2d"><span class="hx-th"></span><span class="hx-tx"><b>Трудный исход</b><small>Случай, где исходные условия мешали, и как решили</small></span></button>
+    </div>
+    <div class="hx-ph rv" aria-live="polite">
+      <span class="on" style="--a:#6f8f7c;--b:#2c3a31">Большое фото: крупная работа целиком</span>
+      <span style="--a:#8a7f70;--b:#3a332b">Большое фото: работа в трудном месте</span>
+      <span style="--a:#6f8296;--b:#2a323c">Большое фото: комплекс с высоты</span>
+      <span style="--a:#94817f;--b:#3c2f2d">Большое фото: решение трудного случая</span>
+      <span class="hx-bar" aria-hidden="true"><i></i></span>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" id="meta">
+{
+  "id": "slozhnye-vkladki",
+  "nazvanie": "Сложные случаи: тёмные вкладки с миниатюрами",
+  "tip": "EXP",
+  "etap": "BELIEVE",
+  "vopros": "Справятся ли они, если у меня что-то нестандартное, – и при чём тут моя обычная задача?",
+  "smysl": "Опыт показывают не словами, а четырьмя трудными случаями: масштаб, сложное место, комплекс, трудные исходные. Тёмный блок выделяет их из светлой страницы как «витрину мастерства». Плашка «Зачем это знать» сразу переводит чужие сложные случаи в пользу для обычного клиента: с ним работают те же люди и те же правила.",
+  "setka_d": "Тёмная карточка на все 12 колонок со скруглением 32 px. Верх: заголовок и подводка слева (около 6 колонок), плашка «Зачем это знать» справа (около 4 колонок: иконка 56 px + текст). Ниже сетка 5 : 7 – слева 4 вкладки столбиком с зазором 8 px (миниатюра 104 × 84 px + крупная подпись + строка пояснения), справа большое фото высотой от 440 px со скруглением 28 px и полоской прогресса внизу.",
+  "setka_m": "Одна колонка на все 4: заголовок, подводка, плашка «Зачем это знать» во всю ширину. Большое фото поднимается над вкладками (order: -1), высота 260 px. Под ним 4 вкладки столбиком, миниатюра 76 × 62 px. Лент нет.",
+  "animaciya": [
+    "Автолистание: каждые 5 с активной становится следующая вкладка, по кругу, только пока блок виден на 35 %",
+    "Полоска внизу фото заполняется слева направо ровно 5 с и начинается заново при каждой смене",
+    "Смена фото: новый кадр проявляется за 0,8 с и «оседает» из масштаба 1,05 за 1,4 с",
+    "Активная вкладка: фон светлеет за 0,5 с, слева вырастает цветная черта за 0,5 с, миниатюра из серой становится цветной за 0,6 с, подпись белеет",
+    "Наведение мыши (только мышь) или клик/тап по вкладке выбирает её и останавливает автолистание насовсем, полоска гаснет",
+    "При наведении на неактивную вкладку миниатюра частично оживает (серость 30 %)",
+    "Заголовок, плашка, список и фото появляются при прокрутке: сдвиг 34 px и проявление за 1,1 с"
+  ],
+  "kak_rabotaet": [
+    "Вкладка и кадр связаны порядковым номером; у вкладки role=tab и aria-selected",
+    "Таймер ставится заново при каждом выборе; если блок ушёл с экрана – таймер и полоска останавливаются, вернулся – запускаются",
+    "Полоска – CSS-анимация scaleX от 0 до 1 за 5 с; перезапуск через снятие класса и повторный расчёт размеров",
+    "Неактивные миниатюры чёрно-белые и притушены (grayscale 1, яркость 0,75) – глаз сразу находит цветную активную",
+    "Плашка «Зачем это знать» – стекло на тёмном: полупрозрачный фон, размытие, светлая кромка",
+    "При prefers-reduced-motion автолистание отключено, выбор по клику работает"
+  ],
+  "kogda": "У компании есть 3–5 нестандартных работ, а основной клиент приходит с типовой задачей: стройка, ремонт, производство, сервис. Нужен блок доверия между каталогом и отзывами.",
+  "ne_kogda": "Сложных работ нет или они не подтверждены фото – блок станет пустым хвастовством. Все работы одинаковые. Тёмный блок уже стоит рядом – два тёмных подряд сливаются.",
+  "u_cerusa": "Заголовок «Сложные объекты тоже наши». Плашка: «Зачем это знать, если вам нужен дом на 100 м²: на вашем объекте работают те же люди и те же правила приёмки». Четыре вкладки: два больших дома с площадью и датой сдачи, три постройки одним проектом, участок с водой. Фон блока – тёмный градиент с наложенной текстурой неба.",
+  "sled": "Отзывы клиентов: после «умеют сложное» человек хочет услышать, каково с ними работать.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 820, "m": 1060},
+  "cerus_blok": 6
+}
+</script>
+<script>
+(function () {
+  var K = Kit, tabs = K.$$('.hx-i'), ph = K.$$('.hx-ph>span:not(.hx-bar)'), bar = K.$('.hx-bar i');
+  var on = 0, t = 0, vis = false, user = false;
+  function go(n) {
+    on = n;
+    tabs.forEach(function (b, k) { b.classList.toggle('on', k === n); b.setAttribute('aria-selected', k === n) });
+    ph.forEach(function (p, k) { p.classList.toggle('on', k === n) });
+    var run = vis && !user && !K.reduce;
+    bar.classList.remove('run'); void bar.offsetWidth; if (run) bar.classList.add('run');
+    clearTimeout(t); if (run) t = setTimeout(function () { go((on + 1) % tabs.length) }, 5000);
+  }
+  tabs.forEach(function (b, k) {
+    function pick() { user = true; go(k) }
+    b.addEventListener('click', pick);
+    if (K.fine) b.addEventListener('mouseenter', pick);
+  });
+  new IntersectionObserver(function (es) { vis = es[0].isIntersecting; go(on) }, { threshold: .35 }).observe(K.$('.hx'));
+  K.reveal('.rv:not(.why)'); K.reveal('.why', { glass: true });
+})();
+</script>
+</body>
+</html>

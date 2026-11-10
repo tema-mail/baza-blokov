@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: отзывы – крупная цитата и видео-плитки</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+body{padding:12px 0}
+/* цветной блок: 2 колонки (заголовок | цитата), ниже ряд из трёх видео-плиток */
+.rw{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:56px;row-gap:44px;margin:0 12px;padding:64px 56px 56px;border-radius:32px;background:var(--acc);color:#fff}
+.rw::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(55% 60% at 12% 0,rgb(255 255 255/.12),transparent 70%)}
+.rw-l{display:flex;flex-direction:column;align-items:flex-start}
+.rw-l .h2 em{color:#0c3a1d}
+.rw-l .lead{color:rgb(255 255 255/.88)}
+/* бейдж: текст по кругу медленно вращается, в центре белый круг с кавычками */
+.badge{position:relative;display:grid;place-items:center;width:150px;height:150px;margin-bottom:30px}
+.badge svg{position:absolute;inset:0;width:100%;height:100%;animation:spin 26s linear infinite}
+.badge text{font:700 12.5px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.06em;fill:#fff}
+.badge i{display:grid;place-items:center;width:74px;height:74px;border-radius:50%;background:#fff;color:var(--acc);font:900 44px/1 Georgia,serif;font-style:normal;padding-top:18px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rw-r{display:flex;flex-direction:column;justify-content:space-between;padding-top:10px}
+.rw-q p{display:none;font:600 28px/1.35 system-ui,sans-serif;letter-spacing:-.01em}
+.rw-q p.on{display:block;animation:rwIn .6s var(--ease) both}
+@keyframes rwIn{from{opacity:0;transform:translateY(10px)}}
+.who{display:flex;align-items:center;gap:16px;margin-top:32px;padding-top:24px;border-top:1px solid rgb(255 255 255/.32)}
+.av{flex:none;width:56px;height:56px;border-radius:50%;background:linear-gradient(160deg,var(--a),var(--b));box-shadow:0 0 0 3px rgb(255 255 255/.5);transition:background .4s}
+.nm b{display:block;font:800 15px/1.2 system-ui,sans-serif;text-transform:uppercase}
+.nm small{display:block;margin-top:5px;font-size:13.5px;color:rgb(255 255 255/.82)}
+.nav{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav button{height:44px;padding:0 20px;border-radius:99px;background:rgb(255 255 255/.2);color:#fff;font-size:14px;font-weight:700;white-space:nowrap;transition:background .45s,color .45s}
+.nav button:hover{background:#fff;color:var(--acc)}
+.cnt{min-width:56px;text-align:center;font-size:14px;font-weight:600;color:rgb(255 255 255/.82)}
+.cnt b{color:#fff}
+/* плитки: 3 в ряд, 16:10; активная – белая обводка 4 px */
+.tl{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.t{position:relative;display:block;aspect-ratio:16/10;border-radius:22px;overflow:hidden;text-align:left;color:#fff;box-shadow:0 0 0 0 #fff;transition:box-shadow .45s}
+.t-ph{position:absolute;inset:0;background:linear-gradient(160deg,var(--a),var(--b));transition:transform 1.2s var(--ease)}
+.t-ph::before{content:attr(data-l);position:absolute;left:0;right:0;top:18px;text-align:center;font-size:12px;color:rgb(255 255 255/.6)}
+.t::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 45%,rgb(8 30 16/.62))}
+.t.on{box-shadow:0 0 0 4px #fff}
+@media (hover:hover){.t:hover .t-ph{transform:scale(1.05)}}
+.play{position:absolute;z-index:2;left:50%;top:50%;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;display:grid;place-items:center;background:rgb(255 255 255/.22);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);box-shadow:inset 0 0 0 1px rgb(255 255 255/.35);font-size:18px;padding-left:4px;transition:transform .5s var(--ease)}
+.t:hover .play{transform:scale(1.08)}
+.tn{position:absolute;z-index:2;left:20px;right:20px;bottom:18px}
+.tn b{display:block;font:800 14px/1.2 system-ui,sans-serif;text-transform:uppercase}
+.tn small{display:block;margin-top:5px;font-size:13px;color:rgb(255 255 255/.85)}
+
+/* попап видео: тёмный размытый фон, кадр 16:9 вырастает из 0,94 */
+.vm{position:fixed;inset:0;z-index:90;display:grid;place-items:center;visibility:hidden;pointer-events:none;transition:visibility 0s .5s}
+.vm.open{visibility:visible;pointer-events:auto;transition:none}
+.vm>*{opacity:0;transition:opacity .45s}
+.vm.open>*{opacity:1}
+.vm-bg{position:absolute;inset:0;background:rgb(10 18 11/.78);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.vm-box{position:relative;display:grid;place-items:center;width:min(1100px,calc(100vw - 32px));aspect-ratio:16/9;border-radius:24px;overflow:hidden;background:linear-gradient(160deg,var(--a,#333),var(--b,#111));color:rgb(255 255 255/.8);font-size:14px;text-align:center;transform:scale(.94);transition:transform .6s var(--ease)}
+.vm.open .vm-box{transform:none}
+.vm-box::after{content:"";position:absolute;left:16px;right:16px;bottom:16px;height:4px;border-radius:4px;background:linear-gradient(90deg,#fff 0 30%,rgb(255 255 255/.3) 30%)}
+.vm-x{position:absolute;z-index:5;right:24px;top:24px;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgb(255 255 255/.14);color:#fff;font-size:26px;line-height:1;transition:background .4s}
+.vm-x:hover{background:rgb(255 255 255/.28)}
+
+@media (max-width:760px){
+  .rw{grid-template-columns:1fr;row-gap:24px;margin:0 8px;padding:40px 16px 16px;border-radius:28px}
+  .badge{width:112px;height:112px;margin-bottom:20px}
+  .badge i{width:56px;height:56px;font-size:34px;padding-top:14px}
+  .rw-q p{font-size:19px;line-height:1.4}
+  .who{flex-wrap:wrap;margin-top:20px;padding-top:18px}
+  .av{width:46px;height:46px}
+  .nm b{font-size:13px}
+  .nm small{font-size:12.5px}
+  .nav{width:100%;margin:14px 0 0;justify-content:space-between}
+  .nav button{height:42px;padding:0 18px}
+  .tl{grid-template-columns:1fr;gap:8px}
+  .t{border-radius:18px}
+  .vm-box{border-radius:16px}
+  .vm-x{right:12px;top:auto;bottom:max(24px,env(safe-area-inset-bottom));width:46px;height:46px}
+}
+</style>
+</head>
+<body>
+<section class="rw">
+  <div class="rw-l">
+    <span class="badge" aria-hidden="true"><svg viewBox="0 0 200 200"><defs><path id="rwc" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"/></defs><text><textPath href="#rwc" textLength="496" lengthAdjust="spacing">видеоотзывы • клиенты о работе • </textPath></text></svg><i>“</i></span>
+    <b class="h2 rv">Клиенты о работе&nbsp;– <em>своими словами</em></b>
+    <p class="lead rv">Где и как сняты отзывы, и о чём в них говорят: цена, сроки, что пошло не по плану</p>
+  </div>
+  <div class="rw-r">
+    <blockquote class="rw-q" aria-live="polite">
+      <p class="on">Цитата 1: живая фраза из видео клиента – что для него оказалось главным в работе</p>
+      <p>Цитата 2: фраза клиента, который заказывал издалека, – почему ему было спокойно</p>
+      <p>Цитата 3: фраза клиента о том, кто и как контролировал работу на месте</p>
+    </blockquote>
+    <div class="who"><span class="av"></span><span class="nm"><b>Клиент 1</b><small>Что заказывал и когда</small></span>
+      <div class="nav"><button class="prev" type="button">Назад</button><span class="cnt"><b>1</b> / 3</span><button class="next" type="button">Дальше</button></div></div>
+  </div>
+  <div class="tl">
+    <button class="t on" type="button" data-nm="Клиент 1" data-sb="Что заказывал и когда" style="--a:#b07a5e;--b:#4e2f22" aria-label="Смотреть видеоотзыв 1"><span class="t-ph" data-l="Кадр видео: клиент у результата"></span><span class="play">▶</span><span class="tn"><b>Клиент 1</b><small>Что заказывал и когда</small></span></button>
+    <button class="t" type="button" data-nm="Клиент 2" data-sb="Откуда заказывал" style="--a:#6c7a8c;--b:#262d36" aria-label="Смотреть видеоотзыв 2"><span class="t-ph" data-l="Кадр видео: клиент крупно"></span><span class="play">▶</span><span class="tn"><b>Клиент 2</b><small>Откуда заказывал</small></span></button>
+    <button class="t" type="button" data-nm="Клиент 3" data-sb="Какой был заказ" style="--a:#a39b7e;--b:#433e2c" aria-label="Смотреть видеоотзыв 3"><span class="t-ph" data-l="Кадр видео: результат работы"></span><span class="play">▶</span><span class="tn"><b>Клиент 3</b><small>Какой был заказ</small></span></button>
+  </div>
+</section>
+
+<div class="vm" id="vm" aria-hidden="true" role="dialog" aria-label="Видеоотзыв">
+  <div class="vm-bg" data-close></div>
+  <button class="vm-x" type="button" data-close aria-label="Закрыть">×</button>
+  <div class="vm-box">Плеер видеоотзыва: здесь идёт ролик со звуком и кнопками</div>
+</div>
+
+<script type="application/json" id="meta">
+{
+  "id": "otzyvy-citata",
+  "nazvanie": "Отзывы: крупная цитата и видео-плитки",
+  "tip": "PROOF",
+  "etap": "BELIEVE",
+  "vopros": "Что говорят люди, которые уже заказывали, – и правда ли это живые люди?",
+  "smysl": "Видео доказывает, что клиенты настоящие, но смотреть три ролика подряд никто не станет. Поэтому главная фраза каждого отзыва вынесена крупной цитатой и читается за секунды, а видео ждёт в плитках для тех, кто хочет убедиться. Цитаты сменяются сами, пока блок на экране, – человек видит несколько голосов, не нажимая ничего.",
+  "setka_d": "Цветная карточка на все 12 колонок, две колонки по 6. Слева: круглый бейдж с текстом по кругу, заголовок, подводка. Справа: крупная цитата (28 px), под ней через линию строка автора – аватар 56 px, имя и пояснение, справа «Назад», счётчик «1 / 3», «Дальше». Нижний ряд на все 12: три видео-плитки 16:10 по 4 колонки, зазор 16 px, кнопка воспроизведения по центру, имя и пояснение внизу.",
+  "setka_m": "Одна колонка на все 4: бейдж 112 px, заголовок, подводка, цитата 19 px, автор, ниже кнопки «Назад» и «Дальше» по краям со счётчиком посередине во всю ширину. Плитки столбиком во всю ширину с зазором 8 px. Попап – кадр 16:9 во всю ширину минус 16 px с краёв, крестик внизу справа под большой палец.",
+  "animaciya": [
+    "Автосмена: каждые 7 с следующая цитата и следующая плитка, по кругу, пока блок виден на 30 % и человек ничего не нажимал",
+    "Новая цитата проявляется и поднимается с 10 px за 0,6 с",
+    "Активная плитка получает белую обводку 4 px за 0,45 с; аватар, имя и счётчик меняются вместе с цитатой",
+    "Текст бейджа вращается по кругу: полный оборот 26 с, бесконечно",
+    "Наведение на плитку (мышь): кадр приближается в 1,05 раза за 1,2 с, кнопка воспроизведения – в 1,08 за 0,5 с",
+    "Попап: фон темнеет и размывается, кадр проявляется за 0,45 с и вырастает из 0,94 до 1 за 0,6 с; прокрутка страницы замирает",
+    "Заголовок и подводка появляются при прокрутке: сдвиг 34 px и проявление за 1,1 с"
+  ],
+  "kak_rabotaet": [
+    "Цитата, плитка и автор связаны порядковым номером; имя и пояснение лежат в data-атрибутах плитки",
+    "«Назад» и «Дальше» листают по кругу и останавливают автосмену насовсем",
+    "Клик по плитке выбирает этот отзыв (цитата и автор меняются) и открывает его видео в попапе",
+    "Закрытие попапа: крестик, клик по фону, Esc; при закрытии видео ставится на паузу",
+    "Видео не грузится, пока плитку не нажали (preload none) – блок лёгкий",
+    "При prefers-reduced-motion автосмена, вращение бейджа и появление отключены"
+  ],
+  "kogda": "Есть 3 и больше видеоотзыва, снятых у результата работы: стройка, ремонт, медицина, обучение, услуги для дома. Особенно когда сделки дорогие и долгие и человеку важно услышать живой голос.",
+  "ne_kogda": "Видео нет – только текст: лучше карточки отзывов или ссылки на площадки с отзывами. Один ролик – цитата и счётчик «1 / 1» выглядят пусто. Цитаты общие («всё понравилось») – крупный шрифт подчеркнёт пустоту.",
+  "u_cerusa": "Зелёный блок «Хозяева о стройке – своими словами», бейдж «видеоотзывы • хозяева о стройке». Подводка: сняты у своих домов, про цену, сроки и что пошло не по плану. Три видеоотзыва; все три цитаты – о том, что руководитель сам приезжал на объект и был на связи, в том числе для заказчика, строившегося удалённо. В плитках – кадр из ролика, имя и одна строка о доме или о том, откуда строился клиент.",
+  "sled": "Способы проверить компанию самому или форма заявки: после живых голосов человек готов к следующему шагу.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 780, "m": 1280},
+  "cerus_blok": 7
+}
+</script>
+<script>
+(function () {
+  var K = Kit, tl = K.$$('.t'), qs = K.$$('.rw-q p'), av = K.$('.av'), vm = K.$('#vm'), box = K.$('.vm-box', vm);
+  var on = 0, t = 0, vis = false, user = false;
+  function go(n) {
+    on = (n + tl.length) % tl.length; var t0 = tl[on];
+    tl.forEach(function (x, k) { x.classList.toggle('on', k === on) });
+    qs.forEach(function (p, k) { p.classList.toggle('on', k === on) });
+    K.$('.nm b').textContent = t0.dataset.nm; K.$('.nm small').textContent = t0.dataset.sb; K.$('.cnt b').textContent = on + 1;
+    av.style.setProperty('--a', t0.style.getPropertyValue('--a')); av.style.setProperty('--b', t0.style.getPropertyValue('--b'));
+    clearTimeout(t); if (vis && !user && !K.reduce) t = setTimeout(function () { go(on + 1) }, 7000);
+  }
+  function openVm(x) {
+    box.style.setProperty('--a', x.style.getPropertyValue('--a')); box.style.setProperty('--b', x.style.getPropertyValue('--b'));
+    vm.classList.add('open'); vm.setAttribute('aria-hidden', 'false'); K.lock(true);
+  }
+  function closeVm() { vm.classList.remove('open'); vm.setAttribute('aria-hidden', 'true'); K.lock(false) }
+  tl.forEach(function (x, k) { x.addEventListener('click', function () { user = true; go(k); openVm(x) }) });
+  K.$('.nav .prev').addEventListener('click', function () { user = true; go(on - 1) });
+  K.$('.nav .next').addEventListener('click', function () { user = true; go(on + 1) });
+  K.$$('[data-close]', vm).forEach(function (b) { b.addEventListener('click', closeVm) });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape' && vm.classList.contains('open')) closeVm() });
+  new IntersectionObserver(function (es) { vis = es[0].isIntersecting; go(on) }, { threshold: .3 }).observe(K.$('.rw'));
+  K.reveal('.rv');
+})();
+</script>
+</body>
+</html>

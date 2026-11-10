@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: каталог с вкладками и сравнением</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+body{padding:12px 0}
+/* белая карточка блока: заголовок слева, две плашки-факта справа, вкладки, сетка 4 в ряд */
+.cat{margin:0 12px;padding:64px 56px 56px;border-radius:28px;background:var(--card)}
+.cat-h{display:flex;align-items:flex-end;justify-content:space-between;gap:30px}
+.cat-h .lead b{color:var(--ink)}
+.cat-side{display:flex;gap:10px;flex:none}
+.cat-f{display:flex;align-items:center;gap:14px;padding:10px 22px 10px 10px;border-radius:22px;background:var(--soft);text-align:left;transition:background .45s}
+.cat-f .ph{flex:none;width:58px;height:58px;min-height:0;border-radius:14px}
+.cat-f .ph::after{font-size:10px;padding:4px}
+.cat-f b{display:block;font:800 15px/1.2 system-ui,sans-serif;text-transform:uppercase}
+.cat-f b i{font-style:normal;color:var(--acc)}
+.cat-f small{display:block;margin-top:5px;font-size:13px;color:var(--mut)}
+.fav-n.has{background:color-mix(in srgb,var(--acc) 16%,var(--card));cursor:pointer}
+.tabs{display:flex;gap:8px;margin:34px 0 30px}
+.tabs button{height:42px;padding:0 20px;border-radius:99px;font-size:14px;font-weight:600;color:var(--mut);transition:background .45s,color .45s}
+.tabs button:hover{color:var(--ink)}
+.tabs button.on{background:var(--ink);color:var(--paper)}
+.cat-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.cc{position:relative;background:var(--soft);border-radius:20px;padding:12px 12px 18px;transition:transform .6s var(--ease)}
+.cc.hide{display:none}
+.cc .ph{display:block;aspect-ratio:16/11;min-height:0;border-radius:14px;transition:transform 1.2s var(--ease)}
+.cc-phw{display:block;border-radius:14px;overflow:hidden}
+@media (hover:hover){.cc:hover{transform:translateY(-4px)}.cc:hover .ph{transform:scale(1.05)}}
+.heart{position:absolute;z-index:2;right:22px;top:22px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgb(255 255 255/.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:transform .45s var(--ease),background .45s}
+.heart svg{width:18px;height:18px;fill:#4a524d;transition:fill .35s}
+.heart[aria-pressed=true]{background:#fff}
+.heart[aria-pressed=true] svg{fill:var(--acc)}
+@media (hover:hover){.heart:hover{transform:scale(1.08)}}
+.heart.pop{animation:pop .5s var(--ease)}
+@keyframes pop{40%{transform:scale(1.22)}}
+.cc-n{display:block;margin:18px 8px 12px;font:800 20px/1 system-ui,sans-serif;text-transform:uppercase}
+.cc dl{margin:0 8px}
+.cc dl div{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;padding:6px 0}
+.cc dl div::after{content:"";order:2;margin:0 8px 4px;border-bottom:1.5px dotted var(--line)}
+.cc dt{order:1;font-size:13px;color:var(--mut)}
+.cc dd{order:3;font-size:13px;font-weight:700}
+.cc-f{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 8px 0}
+.cc-p{font:800 17px/1.1 system-ui,sans-serif;white-space:nowrap}
+.cc-p small{font:600 12px system-ui,sans-serif;color:var(--mut)}
+.pbtn{display:inline-flex;align-items:center;justify-content:center;height:42px;padding:0 20px;border-radius:99px;background:var(--acc);color:var(--acc-ink);font-size:13.5px;font-weight:700;white-space:nowrap}
+.cat-more{display:flex;justify-content:center;margin-top:40px}
+
+@media (max-width:760px){
+  .cat{margin:0 8px;padding:40px 16px 24px;border-radius:24px}
+  .cat-h{flex-direction:column;align-items:stretch;gap:18px}
+  .cat-side{flex-direction:column;gap:8px}
+  .cat-f{padding:8px 16px 8px 8px;border-radius:18px}
+  .cat-f .ph{width:50px;height:50px}
+  .cat-f b{font-size:14px}
+  .tabs{margin:20px 0 18px;flex-wrap:wrap;gap:6px}
+  .tabs button{height:40px;padding:0 15px;font-size:13.5px}
+  .cat-g{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:16px;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none;overscroll-behavior-x:contain}
+  .cat-g::-webkit-scrollbar{display:none}
+  .cc{flex:none;width:286px;scroll-snap-align:start;padding:10px 10px 14px}
+  .cc .heart{right:18px;top:18px}
+  .cc-f{flex-direction:column;align-items:stretch;gap:12px}
+  .pbtn{width:100%;height:46px}
+  .cat-more{margin-top:24px}
+  .cat-more .btn{width:100%}
+}
+</style>
+</head>
+<body>
+<section class="cat">
+  <div class="cat-h">
+    <div>
+      <b class="h2 rv">Каталог <em>с ценой</em></b>
+      <p class="lead rv">Кто и под что сделал эти варианты – <b>одной строкой</b>. Рядом с каждым – цена «от». Понравился – нажмите на сердечко, потом сравним</p>
+    </div>
+    <div class="cat-side rv">
+      <div class="cat-f"><span class="ph" data-l="Знак"></span><span><b>N позиций в каталоге</b><small>Что включено в цену «от»</small></span></div>
+      <button class="cat-f fav-n" type="button" aria-live="polite"><span class="ph" data-l="♥"></span><span><b>В сравнении: <i>0</i></b><small>Отметьте позиции сердечком</small></span></button>
+    </div>
+  </div>
+  <div class="tabs rv" role="tablist"><button class="on" type="button" data-f="all">Все</button><button type="button" data-f="a">Вид 1</button><button type="button" data-f="b">Вид 2</button><button type="button" data-f="c">Вид 3</button></div>
+  <div class="cat-g">
+    <article class="cc rv" data-f="b" data-id="p1"><span class="cc-phw"><span class="ph" data-l="Фото позиции 1"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 1</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Вид</dt><dd>вид 2</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+    <article class="cc rv" data-f="a" data-id="p2"><span class="cc-phw"><span class="ph" data-l="Фото позиции 2"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 2</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Второй параметр</dt><dd>значение</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+    <article class="cc rv" data-f="a" data-id="p3"><span class="cc-phw"><span class="ph" data-l="Фото позиции 3"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 3</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Вид</dt><dd>вид 1</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+    <article class="cc rv" data-f="b" data-id="p4"><span class="cc-phw"><span class="ph" data-l="Фото позиции 4"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 4</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Вид</dt><dd>вид 2</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+    <article class="cc rv" data-f="c" data-id="p5"><span class="cc-phw"><span class="ph" data-l="Фото позиции 5"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 5</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Второй параметр</dt><dd>значение</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+    <article class="cc rv" data-f="c" data-id="p6"><span class="cc-phw"><span class="ph" data-l="Фото позиции 6"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 6</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Второй параметр</dt><dd>значение</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+    <article class="cc rv" data-f="b" data-id="p7"><span class="cc-phw"><span class="ph" data-l="Фото позиции 7"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 7</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Второй параметр</dt><dd>значение</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+    <article class="cc rv" data-f="c" data-id="p8"><span class="cc-phw"><span class="ph" data-l="Фото позиции 8"></span></span><button class="heart" type="button" aria-pressed="false" aria-label="В сравнение"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.4C1 8.4 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.7 3.9 4.3 7.1C19.5 16.4 12 21 12 21z"/></svg></button><b class="cc-n">Позиция 8</b><dl><div><dt>Главный параметр</dt><dd>значение</dd></div><div><dt>Вид</dt><dd>вид 3</dd></div></dl><div class="cc-f"><span class="cc-p"><small>от</small> 000 ₽</span><a class="pbtn" href="#">Подробнее</a></div></article>
+  </div>
+  <div class="cat-more rv"><a class="btn" href="#">Весь каталог<i>→</i></a></div>
+</section>
+
+<script type="application/json" id="meta">
+{
+  "id": "katalog-vkladki",
+  "nazvanie": "Каталог с вкладками и сравнением",
+  "tip": "PROD",
+  "etap": "EVALUATE",
+  "vopros": "Какие варианты есть, сколько стоит каждый и как отложить понравившиеся, чтобы сравнить?",
+  "smysl": "Витрина главных позиций прямо на главной: у каждой карточки фото, два ключевых параметра и цена «от». Вкладки режут каталог по главному признаку выбора, а сердечко складывает позиции в сравнение – человек не держит варианты в голове и возвращается к ним позже. Счётчик «В сравнении: N» напоминает, что отложенное уже есть.",
+  "setka_d": "Белая карточка на все 12 колонок. Шапка: заголовок с подводкой слева (около 6 колонок), две плашки-факта справа (иконка 58 px + две строки). Ниже ряд вкладок-пилюль. Сетка карточек 4 в ряд по 3 колонки, зазор 18 px, 2 ряда. Карточка: фото 16:11, сердечко в правом верхнем углу фото, название, два параметра с точечной линией между названием и значением, внизу цена «от» и кнопка «Подробнее». Под сеткой кнопка «Весь каталог» по центру.",
+  "setka_m": "Одна колонка на все 4: заголовок, подводка, две плашки-факта друг под другом, вкладки переносятся строками. Карточки – горизонтальная лента во всю ширину экрана и за край: ширина 286 px, зазор 10 px, прилипают к краю (snap). В карточке цена над кнопкой, кнопка во всю ширину. Кнопка «Весь каталог» во всю ширину.",
+  "animaciya": [
+    "Нажатие на сердечко: «пульс» – увеличение до 1,22 на 40 % хода и обратно за 0,5 с, сердце закрашивается цветом за 0,35 с",
+    "Счётчик «В сравнении» меняет число сразу, плашка подкрашивается акцентом за 0,45 с, когда в сравнении есть хоть одна позиция",
+    "Смена вкладки на десктопе: оставшиеся карточки поднимаются с 20 px и проявляются за 0,7 с, каскадом с шагом 50 мс",
+    "Смена вкладки на телефоне: только проявление каскадом, без сдвига, и лента плавно возвращается в начало",
+    "Наведение мыши на карточку: подъём на 4 px за 0,6 с, фото приближается в 1,05 раза за 1,2 с",
+    "Шапка, вкладки и карточки появляются при прокрутке: сдвиг 34 px и проявление за 1,1 с с шагом 80 мс"
+  ],
+  "kak_rabotaet": [
+    "У карточки data-f – вкладка, к которой она относится; «Все» показывает всё, остальные прячут лишние через display:none",
+    "Отложенные позиции – массив адресов в localStorage, не больше 24 последних; его же читает страница сравнения",
+    "Повторное нажатие на сердечко убирает позицию из сравнения; состояние в aria-pressed",
+    "Плашка-счётчик кликабельна, когда в сравнении что-то есть: ведёт на страницу сравнения",
+    "Событие storage синхронизирует сердечки и счётчик между открытыми вкладками браузера",
+    "При prefers-reduced-motion каскад и появление отключены, фильтр и сердечки работают"
+  ],
+  "kogda": "Каталог от 6 до 100 позиций, которые выбирают по паре параметров и сравнивают между собой: проекты домов, кухни, квартиры, автомобили, туры. Особенно когда решение долгое и человек возвращается на сайт несколько раз.",
+  "ne_kogda": "Позиций меньше четырёх – вкладки и сравнение лишние. Товар покупают импульсно и сразу – нужна корзина, а не сравнение. Нет страницы сравнения, куда ведёт счётчик.",
+  "u_cerusa": "Заголовок «Наши проекты с ценой», в подводке названа архитектор компании. Плашки: «99 проектов из камня» с ценой «от» за тёплый контур и «В сравнении: N». Вкладки: «Все», «1 этаж», «Мансарда», «2 этажа». Восемь карточек: шифр проекта, площадь и этажность или число спален, цена «от» в миллионах. Отложенное хранится в браузере под тем же ключом, что на страницах каталога, и открывается на странице избранного. Внизу кнопка «Все 99 проектов».",
+  "sled": "Состав цены: человек увидел «от N ₽» и хочет понять, что в эту цену входит. Параллельно – «Подробнее» на карточку позиции и счётчик на страницу сравнения.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 900, "m": 860},
+  "cerus_blok": 3
+}
+</script>
+<script>
+(function () {
+  var K = Kit, cc = K.$$('.cc'), favN = K.$('.fav-n'), g = K.$('.cat-g'), KEY = 'demo-katalog-fav';
+  function read() { try { var v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v.filter(function (x) { return typeof x === 'string' }) : [] } catch (e) { return [] } }
+  var favs = read();
+  function upd() { K.$('b i', favN).textContent = favs.length; favN.classList.toggle('has', favs.length > 0) }
+  cc.forEach(function (c) {
+    var h = K.$('.heart', c), id = c.dataset.id;
+    c._paint = function () { h.setAttribute('aria-pressed', favs.indexOf(id) > -1) }; c._paint();
+    h.addEventListener('click', function (e) {
+      e.preventDefault(); favs = read();
+      var k = favs.indexOf(id); if (k > -1) favs.splice(k, 1); else { favs.push(id); favs = favs.slice(-24) }
+      c._paint(); h.classList.remove('pop'); void h.offsetWidth; if (favs.indexOf(id) > -1) h.classList.add('pop');
+      try { localStorage.setItem(KEY, JSON.stringify(favs)) } catch (e2) {} upd();
+    });
+    // после появления снимаем встроенный transform, иначе он перекроет подъём при наведении
+    c.addEventListener('transitionend', function (e) { if (e.propertyName === 'transform' && c.style.transform) { c.style.transform = ''; c.style.transition = '' } });
+  });
+  upd();
+  favN.addEventListener('click', function () { if (favs.length) location.hash = 'sravnenie' });
+  addEventListener('storage', function () { favs = read(); cc.forEach(function (c) { c._paint() }); upd() });
+
+  var tabs = K.$$('.tabs [data-f]');
+  tabs.forEach(function (t) { t.addEventListener('click', function () {
+    tabs.forEach(function (x) { x.classList.toggle('on', x === t); x.setAttribute('aria-selected', x === t) });
+    var f = t.dataset.f, vis = [];
+    cc.forEach(function (c) { var ok = f === 'all' || c.dataset.f === f; c.classList.toggle('hide', !ok); if (ok) vis.push(c) });
+    if (!K.reduce) vis.forEach(function (c, i) {
+      c.style.opacity = ''; c.style.transform = ''; c.style.transition = '';
+      c.animate(K.mob() ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: i * 50, easing: K.EXPO, fill: 'backwards' });
+    });
+    if (K.mob()) g.scrollTo({ left: 0, behavior: K.reduce ? 'auto' : 'smooth' });
+  }) });
+  K.reveal('.rv');
+})();
+</script>
+</body>
+</html>
