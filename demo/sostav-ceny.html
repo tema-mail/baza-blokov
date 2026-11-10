@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: состав цены – объект с выносками</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+body{padding:12px 0}
+/* белая карточка блока: сверху заголовок и плашка «считается отдельно», ниже сцена */
+.gx{margin:0 12px;padding:40px 48px 36px;border-radius:28px;background:var(--card)}
+.gx-top{display:grid;grid-template-columns:7fr 5fr;gap:32px;align-items:start}
+.gx-top .lead b{color:var(--ink)}
+.gx-sep{padding:18px 20px}
+.gx-sep>span{display:block;margin-bottom:10px;font-size:13px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;list-style:none}
+.chips li{padding:8px 13px;border-radius:99px;background:var(--card);font-size:13px;font-weight:600;color:var(--mut)}
+
+/* сцена: объект по центру, ячейки по краям в трёх ровных слотах (top ставит скрипт) */
+.gx-stage{position:relative;display:flex;align-items:center;justify-content:center;height:480px;margin-top:28px}
+.gx-obj{position:relative;height:94%;aspect-ratio:400/436}
+.gx-obj svg{width:100%;height:100%}
+.gx-obj path{fill:var(--soft);stroke:var(--line);stroke-width:1.5;stroke-linejoin:round}
+.gx-obj .s{fill:var(--ph)}
+.gx-obj::after{content:attr(data-l);position:absolute;left:0;top:0;font-size:12px;color:var(--mut)}
+
+/* точка на объекте: нулевой якорь, кружок и расходящееся кольцо – на псевдоэлементах */
+.gx-dot{position:absolute;z-index:2;width:0;height:0}
+.gx-dot::before{content:"";position:absolute;left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;background:var(--acc);border:5px solid var(--card);box-shadow:0 4px 14px rgb(0 0 0/.25);transition:transform .5s var(--ease)}
+.gx-dot::after{content:"";position:absolute;left:-17px;top:-17px;width:34px;height:34px;border-radius:50%;border:2px solid var(--acc);opacity:0;animation:gx-ring 2.4s ease-out infinite}
+.gx-dot.on::before{transform:scale(1.5)}
+@keyframes gx-ring{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+
+/* линии: SVG поверх сцены, пути рисует скрипт */
+.gx-lines{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.gx-lines path{fill:none;stroke:var(--acc);stroke-opacity:.38;stroke-width:1.3;stroke-dasharray:4 5;transition:stroke-opacity .4s}
+.gx-lines path.on{stroke-opacity:1;stroke-width:1.8;stroke-dasharray:none}
+.gx-lines circle{fill:var(--acc)}
+
+/* выноска и ячейка-призыв: одинаковый размер, чтобы слоты были ровными */
+.gx-co,.gx-cta{position:absolute;z-index:3;right:0;width:300px;height:128px;border-radius:20px;text-align:left;background:var(--card);box-shadow:0 0 0 1px var(--line)}
+.gx-co{display:flex;align-items:center;gap:14px;padding:12px 16px 12px 12px}
+.gx-co.l{left:0;right:auto}
+.gx-co::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 2px var(--acc),0 18px 40px rgb(0 0 0/.12);opacity:0;transition:opacity .5s;pointer-events:none}
+.gx-co.on::after{opacity:1}
+.gx-co .ph{flex:none;align-self:stretch;width:84px;min-height:0;border-radius:10px}
+.gx-co b,.gx-cta b{display:block;font:800 14px/1.2 system-ui,sans-serif;text-transform:uppercase}
+.gx-co small{display:block;margin-top:6px;font-size:13px;line-height:1.4;color:var(--mut)}
+.gx-cta{display:grid;grid-template-columns:auto 1fr;grid-template-rows:1fr auto;gap:10px 12px;padding:12px;background:color-mix(in srgb,var(--acc) 14%,var(--card));box-shadow:none}
+.gx-cta .ph{width:52px;height:52px;min-height:0;border-radius:10px}
+.gx-cta b{align-self:center}
+.gx-cta>span:last-child{grid-column:1/-1;display:grid;place-items:center;height:42px;border-radius:99px;background:var(--acc);color:var(--acc-ink);font-size:14px;font-weight:700}
+
+@media (max-width:760px){
+  .gx{margin:0 8px;padding:32px 16px 16px;border-radius:24px}
+  .gx-top{grid-template-columns:1fr;gap:18px}
+  .gx-sep{padding:16px}
+  .gx-stage{flex-direction:column;align-items:stretch;gap:8px;height:auto;margin-top:8px}
+  .gx-obj{align-self:center;width:min(100%,330px);height:auto;margin:14px 0 16px}
+  .gx-lines{display:none}
+  .gx-co,.gx-cta{position:relative;width:auto;height:auto;min-height:96px}
+  .gx-co .ph{width:72px}
+}
+</style>
+</head>
+<body>
+<section class="gx">
+  <div class="gx-top">
+    <div>
+      <b class="h2 rv">Что входит <em>в эту цену</em></b>
+      <p class="lead rv"><b>Название комплектации:</b> одной фразой – что человек получает за цену и что дальше выбирает сам</p>
+    </div>
+    <div class="gx-sep soft rv"><span>Считается отдельно:</span>
+      <ul class="chips"><li>Доп. работа 1</li><li>Доп. работа 2</li><li>Опция на выбор</li><li>Опция на выбор</li><li>То, что зависит от места</li><li>Сложный случай</li></ul>
+    </div>
+  </div>
+
+  <div class="gx-stage">
+    <div class="gx-obj" data-l="Объект в разрезе">
+      <svg viewBox="0 0 400 436" aria-hidden="true">
+        <defs><g id="sl"><path d="M200 0 380 50 200 100 20 50z"/><path class="s" d="M20 50 200 100v14L20 64zM380 50 200 100v14l180-50z"/></g></defs>
+        <use href="#sl" y="320"/><use href="#sl" y="240"/><use href="#sl" y="160"/><use href="#sl" y="80"/><use href="#sl"/>
+      </svg>
+      <i class="gx-dot" data-h="0" style="left:60%;top:16.06%"></i>
+      <i class="gx-dot" data-h="1" style="left:75%;top:27.52%"></i>
+      <i class="gx-dot" data-h="2" style="left:32.5%;top:50%"></i>
+      <i class="gx-dot" data-h="3" style="left:65%;top:66.06%"></i>
+      <i class="gx-dot" data-h="4" style="left:40%;top:82.57%"></i>
+    </div>
+    <svg class="gx-lines" aria-hidden="true"></svg>
+    <button class="gx-co l rv" type="button" data-h="0" data-slot="0"><span class="ph" data-l="Иконка"></span><span><b>Часть 1 – верхняя</b><small>Из чего сделана и в каком объёме входит в цену</small></span></button>
+    <button class="gx-co l rv" type="button" data-h="2" data-slot="1"><span class="ph" data-l="Иконка"></span><span><b>Часть 3</b><small>Линия прямая: точка на высоте ячейки</small></span></button>
+    <button class="gx-co l rv" type="button" data-h="4" data-slot="2"><span class="ph" data-l="Иконка"></span><span><b>Часть 5 – основание</b><small>Материал, размер, что уже учтено</small></span></button>
+    <button class="gx-co r rv" type="button" data-h="1" data-slot="0"><span class="ph" data-l="Иконка"></span><span><b>Часть 2</b><small>Варианты материала, которые входят без доплаты</small></span></button>
+    <button class="gx-co r rv" type="button" data-h="3" data-slot="1"><span class="ph" data-l="Иконка"></span><span><b>Часть 4</b><small>Коротко: что и с какой работой</small></span></button>
+    <a class="gx-cta rv" href="#" data-slot="2"><span class="ph" data-l="₽"></span><b>Сколько стоит ваш вариант</b><span>Действие: рассчитать</span></a>
+  </div>
+</section>
+
+<script type="application/json" id="meta">
+{
+  "id": "sostav-ceny",
+  "nazvanie": "Состав цены: объект с выносками",
+  "tip": "COM",
+  "etap": "EVALUATE",
+  "vopros": "Что именно я получу за эту цену и за что придётся доплатить отдельно?",
+  "smysl": "Цена без состава – просто число, её не с чем сравнить. Блок раскладывает цену на части прямо на объекте: каждая выноска привязана линией к своему месту, состав читается за один взгляд. Рядом честно названо, что в цену не входит, а шестая ячейка сразу ведёт к расчёту под свой размер.",
+  "setka_d": "Белая карточка на все 12 колонок. Верх: заголовок с подводкой – 7 колонок слева, серая плашка с чипами «считается отдельно» – 5 колонок справа. Ниже сцена фиксированной высоты 480 px: объект по центру (около 4 колонок), слева и справа по 3 ячейки шириной 300 px (по 3 колонки) в трёх ровных слотах – верх, середина, низ. Пять ячеек – выноски (иконка 84 px + заголовок + строка), шестая, правая нижняя – призыв с кнопкой.",
+  "setka_m": "Одна колонка на все 4: заголовок, подводка, плашка с чипами (чипы переносятся строками), объект по центру шириной до 330 px, под ним 5 выносок списком (иконка 72 px слева, текст справа) и ячейка-призыв последней. Линий нет. Лент нет – обычная прокрутка вниз.",
+  "animaciya": [
+    "Автоперебор: каждые 3,2 с подсветка переходит к следующей выноске (три левые сверху вниз, потом правые), пока сцена видна на 30 % и человек ничего не выбрал",
+    "Активная выноска получает цветную обводку и тень за 0,5 с; её точка на объекте вырастает в 1,5 раза за 0,5 с; линия из бледной пунктирной становится сплошной за 0,4 с",
+    "Вокруг каждой точки постоянно расходится кольцо: цикл 2,4 с",
+    "Наведение мыши (только на устройствах с мышью) или клик/тап по выноске выбирает её и останавливает автоперебор насовсем",
+    "Заголовок, плашка и ячейки появляются при прокрутке: сдвиг 34 px снизу и проявление за 1,1 с, соседние с шагом 80 мс",
+    "На телефоне линии не рисуются: тап подсвечивает выноску и её точку на объекте",
+    "При prefers-reduced-motion автоперебор и появление отключены, выбор по клику работает"
+  ],
+  "kak_rabotaet": [
+    "У выноски и её точки общий номер data-h: по нему скрипт связывает ячейку, точку и линию",
+    "Точки стоят на объекте в процентах (left/top), поэтому не съезжают при любом размере картинки",
+    "Слот ячейки – data-slot 0, 1, 2: скрипт делит высоту сцены на три ровных места и сам ставит top, текст разной длины ряд не ломает",
+    "Линия – путь в SVG поверх сцены: от края ячейки по горизонтали до вертикали точки, скруглённый угол до 14 px, дальше вверх или вниз к точке; при разнице высот меньше 2 px – прямая. На конце у ячейки кружок 3 px",
+    "Положение точки берётся с экрана (getBoundingClientRect) относительно сцены; линии пересчитываются при любом изменении размера сцены (ResizeObserver)",
+    "Чипы «считается отдельно» – обычный список без действий",
+    "Ячейка-призыв – ссылка на страницу цен или калькулятор"
+  ],
+  "kogda": "Продукт собирается из понятных частей и продаётся комплектацией: дом, кухня, ремонт под ключ, комплект оборудования, установка с материалами. Особенно когда на рынке принято писать «от N ₽» без расшифровки.",
+  "ne_kogda": "Частей больше шести – выноски слипаются, нужен список или таблица. Нет чистого изображения объекта, где части видны по отдельности. Состав у каждого клиента свой и общей базовой комплектации нет.",
+  "u_cerusa": "Заголовок «Что вы получаете за эту цену», в подводке расшифрован «тёплый контур». В центре дом в разрезе, 5 выносок: слева крыша с утеплением, входная дверь, фундамент; справа стены и окна. Шестая ячейка – «Сколько стоит дом вашей площади» с кнопкой «Рассчитать», ведёт на страницу цен. Плашка «Считается отдельно, после встречи»: участок, отделка фасада, инженерные сети, внутренняя отделка, благоустройство, дренаж и сложное основание.",
+  "sled": "Карта или кейсы построенного: после «что входит» человек хочет увидеть, что это уже делали. Ячейка-призыв параллельно уводит на страницу цен.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 770, "m": 720},
+  "cerus_blok": 4
+}
+</script>
+<script>
+(function () {
+  var K = Kit, st = K.$('.gx-stage'), svg = K.$('.gx-lines');
+  var co = K.$$('.gx-co'), cells = K.$$('.gx-co,.gx-cta'), dots = K.$$('.gx-dot');
+  var order = co.map(function (c) { return c.dataset.h }), cur = order[0];
+
+  // подсветка: ячейка, точка и линия с одним data-h
+  function mark(h) {
+    cur = h;
+    co.concat(dots, K.$$('path', svg)).forEach(function (el) { el.classList.toggle('on', el.dataset.h === h) });
+  }
+  // уголок: по горизонтали до вертикали точки, скругление, дальше к точке
+  function elbow(x0, y0, x1, y1) {
+    var dx = x1 - x0, dy = y1 - y0;
+    if (Math.abs(dy) < 2) return 'M' + x0 + ' ' + y0 + 'L' + x1 + ' ' + y1;
+    var r = Math.min(14, Math.abs(dy) / 2, Math.abs(dx) / 2), kx = dx > 0 ? 1 : -1, ky = dy > 0 ? 1 : -1;
+    return 'M' + x0 + ' ' + y0 + 'H' + (x1 - kx * r) + 'Q' + x1 + ' ' + y0 + ' ' + x1 + ' ' + (y0 + ky * r) + 'V' + y1;
+  }
+  function draw() {
+    if (K.mob()) { cells.forEach(function (c) { c.style.top = '' }); svg.innerHTML = ''; mark(cur); return }
+    var H = st.offsetHeight, h = cells[0].offsetHeight, stepY = h + (H - 3 * h) / 2, box = st.getBoundingClientRect(), out = '';
+    cells.forEach(function (c) { c.style.top = c.dataset.slot * stepY + 'px' });
+    co.forEach(function (c) {
+      var p = K.$('.gx-dot[data-h="' + c.dataset.h + '"]').getBoundingClientRect();
+      var x0 = c.classList.contains('l') ? c.offsetLeft + c.offsetWidth : c.offsetLeft, y0 = c.dataset.slot * stepY + h / 2;
+      out += '<path data-h="' + c.dataset.h + '" d="' + elbow(x0, y0, p.left - box.left, p.top - box.top) + '"/><circle cx="' + x0 + '" cy="' + y0 + '" r="3"/>';
+    });
+    svg.setAttribute('viewBox', '0 0 ' + st.offsetWidth + ' ' + H); svg.innerHTML = out; mark(cur);
+  }
+
+  var auto = K.auto(st, 3200, function () { mark(order[(order.indexOf(cur) + 1) % order.length]) });
+  co.forEach(function (c) {
+    function pick() { auto.stop(); mark(c.dataset.h) }
+    c.addEventListener('click', pick);
+    if (K.fine) c.addEventListener('mouseenter', pick);
+  });
+  draw(); addEventListener('load', draw); new ResizeObserver(draw).observe(st);
+  K.reveal('.rv');
+})();
+</script>
+</body>
+</html>

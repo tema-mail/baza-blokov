@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: способы проверить до договора</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* заголовок во всю ширину; под ним сетка из 12 колонок: первая строка 7 + 5, вторая 5 + 7 */
+.wy-h{margin-bottom:28px}
+.wy-h .lead{max-width:none}
+.wy-g{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.wy-c{position:relative;isolation:isolate;overflow:hidden;height:300px;border-radius:26px;background:var(--card)}
+.w1,.w4{grid-column:span 7}
+.w2,.w3{grid-column:span 5}
+
+/* номер – левый верхний угол; текст прижат к низу; предмет – справа по центру высоты, краем уходит за карточку */
+.wy-n{position:absolute;z-index:3;left:26px;top:26px;padding:0 10px;border-radius:8px;background:var(--soft);color:var(--acc);font:800 12px/28px system-ui,sans-serif}
+.wy-t{position:absolute;z-index:2;left:26px;bottom:26px;width:42%}
+.w2 .wy-t,.w3 .wy-t{width:46%}
+.wy-t p{margin-top:10px;font-size:14px;color:var(--mut);text-wrap:pretty}
+.lnk{display:inline-block;margin-top:14px;font-size:14px;font-weight:700;text-decoration:underline;text-decoration-color:var(--acc);text-decoration-thickness:1.5px;text-underline-offset:5px;transition:color .4s}
+.lnk:hover{color:var(--acc)}
+.wy-o{position:absolute;z-index:1;right:-20px;top:50%;width:46%;height:230px;border-radius:24px;transform:translateY(-50%);transition:transform 1s var(--ease)}
+.w2 .wy-o,.w3 .wy-o{width:44%;height:200px;right:-30px}
+/* наведение мышью: предмет приподнимается на 8 px */
+@media (hover:hover){.wy-c:hover .wy-o{transform:translateY(calc(-50% - 8px))}}
+
+@media (max-width:760px){
+  .wy-h{margin-bottom:20px}
+  .wy-g{display:flex;flex-direction:column;gap:10px}
+  /* на телефоне предмет встаёт сверху по центру, текст – обычным потоком под ним */
+  .wy-c{height:auto;padding:196px 20px 22px;border-radius:22px}
+  .wy-n{left:16px;top:16px}
+  .wy-t,.w2 .wy-t,.w3 .wy-t{position:relative;left:auto;bottom:auto;width:auto}
+  .wy-o,.w2 .wy-o,.w3 .wy-o{left:50%;right:auto;top:16px;width:260px;height:164px;transform:translateX(-50%)}
+  .wy-c:hover .wy-o{transform:translateX(-50%)}
+}
+</style>
+</head>
+<body>
+<section class="sec"><div class="wrap">
+  <div class="wy-h">
+    <h2 class="h2 rv">Четыре способа <em>убедиться самому</em></h2>
+    <p class="lead rv">Строка под заголовком: на слово верить не просим – ниже то, что можно увидеть, прочитать и проверить лично</p>
+  </div>
+  <div class="wy-g">
+    <article class="wy-c w1 rv"><span class="wy-n">01</span><div class="wy-t"><h3 class="h3">Посмотреть вживую</h3><p>Заголовок карточки – действие человека. Пояснение: что именно ему покажут на месте</p><a class="lnk" href="#">Куда приехать</a></div><div class="ph wy-o" data-l="Предмет шага 01: то, что увидят на месте"></div></article>
+    <article class="wy-c w2 rv"><span class="wy-n">02</span><div class="wy-t"><h3 class="h3">Прочитать документ</h3><p>Три пункта, которые защищают клиента: гарантия, штраф, акты</p><a class="lnk" href="#">Открыть документ</a></div><div class="ph wy-o" data-l="Предмет шага 02: документ"></div></article>
+    <article class="wy-c w3 rv"><span class="wy-n">03</span><div class="wy-t"><h3 class="h3">Привести своего эксперта</h3><p>Карточка без ссылки: это действие человек совершает вне сайта</p></div><div class="ph wy-o" data-l="Предмет шага 03: инструмент проверки"></div></article>
+    <article class="wy-c w4 rv"><span class="wy-n">04</span><div class="wy-t"><h3 class="h3">Спросить клиентов</h3><p>Отзывы с лицом и местом: что получилось и что пришлось переделывать</p><a class="lnk" href="#">Смотреть отзывы</a></div><div class="ph wy-o" data-l="Предмет шага 04: голос клиента"></div></article>
+  </div>
+</div></section>
+
+<script type="application/json" id="meta">
+{
+  "id": "sposoby-proverit",
+  "nazvanie": "Способы проверить до договора",
+  "tip": "RISK",
+  "etap": "REDUCE RISK",
+  "vopros": "Как мне проверить вас самому, пока я ещё ничего не подписал?",
+  "smysl": "Обещаниям на сайте не верят. Блок переводит доверие в действия самого человека: приехать, прочитать, привести своего эксперта, спросить клиентов. Каждая карточка – одно действие с глаголом в заголовке и ссылкой туда, где его можно совершить. Риск снимается не словами «мы надёжные», а тем, что проверку отдают в руки покупателя.",
+  "setka_d": "Заголовок и строка под ним – 12 из 12. Ниже сетка 2×2 с зазором 16–18 px: первая строка 7 + 5 колонок, вторая 5 + 7, широкая и узкая меняются местами. Карточка фиксированной высоты (300–360 px): номер в левом верхнем углу, текст прижат к нижнему левому углу и занимает до 42 % ширины в широкой карточке и до 46 % в узкой, предмет справа по центру высоты и краем уходит за карточку.",
+  "setka_m": "Все части – 4 из 4, столбик с зазором 10 px, порядок 01 → 04. Внутри карточки предмет встаёт сверху по центру (зона около 200 px), под ним обычным потоком заголовок, пояснение и ссылка. Номер остаётся в левом верхнем углу поверх предмета. Лент нет.",
+  "animaciya": [
+    "Заголовок, строка под ним и карточки появляются при прокрутке: сдвиг 34 px снизу + прозрачность, 1,1 с, соседние с шагом 80 мс",
+    "Наведение мышью на карточку: предмет поднимается на 8 px за 1 с; на тач-экранах этого нет",
+    "Ссылка-действие при наведении меняет цвет на акцентный за 0,4 с"
+  ],
+  "kak_rabotaet": [
+    "Номер, заголовок-действие, пояснение, картинка-предмет и ссылка – пять полей одной карточки; порядок карточек задаёт разметка",
+    "Ширину задают два класса: широкая (7 колонок) и узкая (5 колонок); чередование 7 + 5 / 5 + 7 даёт «шахматку»",
+    "Ссылка ведёт туда, где действие совершается: на блок с объектами, на страницу с документом, на отзывы. Если действие вне сайта, карточка остаётся без ссылки",
+    "Предмет – картинка на белом фоне, снятая в одном стиле для всех четырёх карточек; на сайте-образце она наложена режимом multiply и сливается с карточкой"
+  ],
+  "kogda": "Дорогая услуга с длинной сделкой и страхом обмана: стройка, ремонт, установка, лечение, обучение. Когда у компании реально есть что показать: объекты в работе, открытый договор, отзывы с лицами.",
+  "ne_kogda": "Если проверить нечем: нет открытого документа, нельзя приехать, отзывы безымянные. Тогда блок превращается в пустые обещания. Не подходит и для импульсной покупки, где решение принимают за минуту.",
+  "u_cerusa": "Заголовок «Четыре способа проверить нас до договора». Карточки: 01 «Приезжайте на стройку» со ссылкой на блок с картой объектов, 02 «Прочитайте договор» со ссылкой на страницу с разбором договора, 03 «Приведите своего специалиста» без ссылки, 04 «Послушайте хозяев» со ссылкой на отзывы хозяев домов. Предметы – объёмные натюрморты на белом: каска и блоки, договор с лупой, лазерный уровень, микрофон и ключи.",
+  "sled": "Блок про человека, который отвечает за результат (direktor): после «проверьте нас» логично показать, кто именно стоит за обещаниями.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 840, "m": 720},
+  "cerus_blok": 8
+}
+</script>
+<script>
+Kit.reveal('.rv');
+</script>
+</body>
+</html>

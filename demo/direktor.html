@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: за результат отвечает один человек</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* плита: слева 5 долей (заголовок, факты, цитата, кнопка), справа 7 долей (сцена с человеком) */
+.bo{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:36px;padding:44px;border-radius:28px;background:var(--card)}
+.bo-l{display:flex;flex-direction:column;gap:12px}
+.bo-l .h2{margin-bottom:14px}
+.bo-pts{list-style:none;display:flex;flex-direction:column;gap:12px}
+.bo-pts li{display:flex;align-items:center;gap:16px;padding:12px 18px 12px 12px;border-radius:20px;background:var(--soft);font-weight:600;line-height:1.4}
+.bo-pts .ph{flex:none;width:76px;height:76px;border-radius:10px}
+/* цитата – единственная тёмная карточка блока, забирает свободную высоту колонки */
+.bo-q{flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:18px;min-height:150px;padding:20px 22px 22px;border-radius:20px;background:var(--dark);color:#fff}
+.bo-q svg{width:42px;height:42px;padding:11px;border-radius:12px;background:rgb(255 255 255/.1);color:var(--acc)}
+.bo-q p{font-size:18px;line-height:1.45;font-weight:600}
+.bo-l .btn{align-self:flex-start;margin-top:10px}
+
+/* сцена: фото-фон начинается на 80 px ниже верха, человек стоит поверх и головой выходит за рамку фото */
+.bo-s{position:relative;min-height:540px}
+.bo-bg{position:absolute;inset:80px 0 0;border-radius:26px}
+.bo-bg::after{justify-items:start;padding-left:24px;text-align:left}
+.bo-man{position:absolute;z-index:2;right:7%;bottom:0;width:42%;height:100%;border-radius:130px 130px 0 0;background:repeating-linear-gradient(45deg,transparent 0 14px,rgb(0 0 0/.07) 14px 15px),var(--mut)}
+.bo-man::after{color:var(--paper)}
+.bo-name{position:absolute;z-index:3;left:20px;top:100px;display:flex;align-items:center;gap:12px;padding:8px 18px 8px 8px;border-radius:16px;background:var(--card);box-shadow:0 14px 36px rgb(0 0 0/.14)}
+.bo-name svg{flex:none;width:42px;height:42px;padding:11px;border-radius:10px;background:var(--acc);color:var(--acc-ink)}
+.bo-name b{display:block;font:800 15px/1.1 system-ui,sans-serif;text-transform:uppercase}
+.bo-name small,.bo-chip small{display:block;margin-top:4px;font-size:12.5px;line-height:1.25;color:var(--mut)}
+/* цифры – стеклянные плашки по нижним углам фото */
+.bo-chip{position:absolute;z-index:3;bottom:20px;width:calc(50% - 28px);display:flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:18px}
+.bo-chip .ph{flex:none;width:54px;height:54px;min-height:0;border-radius:10px}
+.bo-chip b{display:block;font:800 24px/1 system-ui,sans-serif}
+.c1{left:20px}
+.c2{right:20px}
+
+@media (max-width:760px){
+  /* порядок на телефоне: заголовок, фото с подписью, цифры, факты, цитата, кнопка */
+  .bo{grid-template-columns:1fr;gap:0;padding:28px 14px 14px;border-radius:24px}
+  .bo-l{display:contents}
+  .bo-l .h2{order:1;margin:0 4px}
+  .bo-s{order:2;min-height:0;margin-top:10px;padding-top:386px;display:grid;gap:8px}
+  .bo-bg{inset:46px 0 auto;height:332px;border-radius:20px}
+  .bo-bg::after{align-items:start;padding:14px 80% 0 10px}
+  .bo-man{top:14px;bottom:auto;right:auto;left:22%;width:56%;height:364px;border-radius:110px 110px 0 0}
+  .bo-name{left:10px;top:312px}
+  html .bo .bo-chip{position:relative;left:auto;right:auto;bottom:auto;width:auto;padding:4px 0;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:inherit}
+  .bo-pts{order:3;margin-top:8px;gap:8px}
+  .bo-pts li{padding:10px 14px 10px 10px;border-radius:18px;font-size:14px}
+  .bo-pts .ph{width:60px;height:60px}
+  .bo-q{order:4;margin-top:8px;min-height:0;padding:16px 18px 18px}
+  .bo-q p{font-size:15.5px}
+  .bo-l .btn{order:5;align-self:auto;margin-top:10px}
+}
+</style>
+</head>
+<body>
+<section class="sec"><div class="wrap"><div class="bo">
+  <div class="bo-l">
+    <h2 class="h2 rv">За результат отвечает <em>один человек</em></h2>
+    <ul class="bo-pts">
+      <li class="rv"><span class="ph"></span><span>Факт первый: что он делает сам, а не поручает менеджеру</span></li>
+      <li class="rv"><span class="ph"></span><span>Факт второй: где клиент его увидит – и кто это подтверждает</span></li>
+    </ul>
+    <blockquote class="bo-q rv"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 6h6v6c0 3-2 5-5 6v-3c1.500-.5 2-1.500 2-3H4zM14 6h6v6c0 3-2 5-5 6v-3c1.500-.5 2-1.500 2-3h-3z"/></svg><p>Цитата его словами: одно правило, по которому он работает. Без рекламных оборотов</p></blockquote>
+    <a class="btn rv" href="#">Страница о компании<i>→</i></a>
+  </div>
+  <div class="bo-s rvg">
+    <span class="ph bo-bg" data-l="Фон: объект компании"></span>
+    <span class="ph bo-man" data-l="Человек в рост, вырезан по контуру"></span>
+    <div class="bo-name"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0z"/></svg><span><b>Имя и фамилия</b><small>роль: основатель, директор</small></span></div>
+    <div class="bo-chip c1 glass"><span class="ph"></span><span><b data-n="128">128</b><small>цифра первая: сколько сделано</small></span></div>
+    <div class="bo-chip c2 glass"><span class="ph"></span><span><b><span data-n="15">15</span> лет</b><small>цифра вторая: опыт или охват</small></span></div>
+  </div>
+</div></div></section>
+
+<script type="application/json" id="meta">
+{
+  "id": "direktor",
+  "nazvanie": "За результат отвечает один человек",
+  "tip": "COMP",
+  "etap": "BELIEVE",
+  "vopros": "Кто лично отвечает за результат и можно ли ему верить?",
+  "smysl": "Компании без лица верят хуже, чем человеку. Блок показывает того, кто отвечает лично: крупное фото в рост, имя и роль, два факта о том, что он делает сам, и одна цитата его словами. Цифры поверх фото привязывают масштаб компании к этому человеку. Кнопка ведёт на страницу о компании – за подробностями, а не за заявкой.",
+  "setka_d": "Одна плита на всю ширину контейнера, внутри две колонки с зазором 36–44 px. Левая – 5 из 12: заголовок, две плашки-факта (картинка слева, текст справа), цитата на тёмной карточке (тянется на свободную высоту), кнопка по левому краю. Правая – 7 из 12: сцена высотой 540–680 px, фото-фон начинается ниже верха сцены, фигура человека стоит поверх и головой выходит за рамку. Подпись с именем – в левом верхнем углу фото, две стеклянные плашки-цифры – по нижним углам, каждая чуть меньше половины ширины.",
+  "setka_m": "Всё – 4 из 4, один столбик. Порядок другой, чем на десктопе: заголовок, фото с человеком (около 360 px), подпись с именем поверх нижнего левого угла фото, две цифры строками под фото (без стекла), две плашки-факта, цитата, кнопка на всю ширину. Левая колонка «растворяется» (display: contents), порядок задан свойством order. Лент нет.",
+  "animaciya": [
+    "Заголовок, плашки, цитата и кнопка появляются при прокрутке: сдвиг 34 px + прозрачность, 1,1 с, соседние с шагом 80 мс",
+    "Сцена с фото появляется только сдвигом на 46 px без прозрачности: внутри стеклянные плашки, от прозрачности размытие фона «слетает»",
+    "Цифры в плашках досчитываются от нуля до значения за 1,4 с с замедлением к концу, когда плашка видна на 60 %",
+    "По кнопке раз в 3,2 с пробегает блик; при наведении квадрат с иконкой сдвигается на 3 px",
+    "Движения глубины у фото нет намеренно: любой сдвиг слоёв ломает положение фигуры относительно фона"
+  ],
+  "kak_rabotaet": [
+    "Сцена – три слоя: фото-фон со скруглением, вырезанная по контуру фигура (отдельный файл с прозрачностью), плашки поверх",
+    "Число для счётчика хранится в атрибуте data-n, единица измерения стоит рядом обычным текстом и не анимируется",
+    "Факты – список из двух пунктов: маленькая картинка и одна фраза о том, что человек делает лично",
+    "Кнопка ведёт на страницу о компании с обращением руководителя, а не на форму",
+    "При включённом «уменьшении движения» счётчики сразу показывают итог, появление отключено"
+  ],
+  "kogda": "Услуги с личной ответственностью, где владелец или главный мастер реально участвует в работе: стройка, сервис, клиника, студия. Нужны настоящее фото человека и факты, которые подтвердят клиенты.",
+  "ne_kogda": "Если руководитель с клиентами не встречается и на объект не приезжает: обещание «отвечает один человек» станет неправдой. Не ставить со стоковым фото и без имени. В сети с десятками филиалов такой блок делают про руководителя филиала, а не про владельца.",
+  "u_cerusa": "Заголовок «За дом отвечает один человек». Плашки: встречу по дому ведёт директор; на объект приезжает сам, и об этом говорят хозяева домов в отзывах. Цитата директора про экономию на тёмной карточке, кнопка «О компании и обращение директора». Справа директор в рост на фоне построенного дома, подпись «основатель и директор», цифры: 42 дома и 150 км от города. В коде пометка, что анимацию глубины с этого блока сняли – она сбивала положение фигуры.",
+  "sled": "Коммерческие предложения (dvoynoy-blok): поверив человеку, посетитель смотрит, как именно можно купить.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 760, "m": 760},
+  "cerus_blok": 9
+}
+</script>
+<script>
+Kit.reveal('.rv');
+Kit.reveal('.rvg', { glass: true });
+Kit.count();
+</script>
+</body>
+</html>

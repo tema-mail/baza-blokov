@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: шапка из пилюль и мега-меню</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* шапка: три отдельные стеклянные пилюли; общая плашка под ними проявляется после прокрутки */
+.hdr{position:fixed;z-index:50;top:20px;left:0;right:0}
+.hdr .in{position:relative;width:min(1180px,100% - 40px);margin:0 auto;display:flex;align-items:center;gap:12px;height:60px;padding:0 6px}
+.hdr .all{position:absolute;inset:0;border-radius:99px;opacity:0;transform:scaleX(.96);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.pill{position:relative;display:flex;align-items:center;height:52px;border-radius:99px;padding:0 18px;gap:6px;transition:background .5s,box-shadow .5s,color .4s}
+.pill.logo{font-weight:800;letter-spacing:.14em}
+.pill.menu{margin:0 auto;padding:0 8px}
+.pill.menu a{padding:9px 13px;border-radius:99px;font-size:14px;font-weight:600;transition:background .3s}
+.pill.menu a:hover,.pill.menu a.act{background:var(--soft)}
+.pill.call{gap:14px;padding-right:6px}
+.pill.call b{font-size:14px}
+.pill.call .btn{height:42px;padding:0 16px;border-radius:99px}
+.pill.bur{display:none;width:52px;justify-content:center;padding:0}
+.pill.bur i{width:18px;height:8px;border-top:2px solid;border-bottom:2px solid}
+/* после прокрутки: стекло пилюль гаснет, общая плашка проявляется – три пилюли сливаются в одну */
+.hdr.one .all{opacity:1;transform:none}
+.hdr.one .pill{background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.hdr.dk .pill,.hdr.dk .all{color:#fff}
+.hdr.dk .all,.hdr.dk:not(.one) .pill{background:linear-gradient(rgb(44 47 52/.84),rgb(28 30 34/.76))}
+.hdr.dk .pill.menu a:hover,.hdr.dk .pill.menu a.act{background:rgb(255 255 255/.12)}
+
+/* мега-меню: панель под шапкой, у каждого пункта своя */
+.mm{position:absolute;left:0;right:0;top:72px;border-radius:28px;padding:22px;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .35s,transform .45s var(--ease)}
+.mm.open{opacity:1;transform:none;pointer-events:auto}
+.mm-p{display:none;grid-template-columns:1.1fr 1fr 1fr;gap:18px}
+.mm-p.on{display:grid}
+.mm-p .lead{margin-top:6px;font-size:14px}
+.mm-l a{display:flex;justify-content:space-between;padding:9px 12px;border-radius:12px;font-weight:600;font-size:14px}
+.mm-l a:hover{background:var(--soft)}
+.mm-l small{color:var(--mut)}
+.mm-c{display:grid;gap:8px}
+.mm-c a{display:flex;gap:10px;align-items:center;padding:8px;border-radius:14px;background:var(--soft);font-size:13px;font-weight:600}
+.mm-c .ph{width:64px;height:48px;min-height:0;border-radius:10px;flex:none}
+
+.hero{height:86svh;min-height:480px;margin:8px;border-radius:28px;display:grid;place-items:center;text-align:center;padding:90px 20px 20px}
+.blk{padding:60px 0}
+.blk .ph{height:200px;margin-top:18px}
+.dark{background:var(--dark);color:#fff;border-radius:28px;margin:0 8px}
+.dark .lead{color:#a9adab}
+.dark .ph{background:#2b2f31}
+@media (max-width:760px){
+  .hdr{top:12px}.hdr .in{width:calc(100% - 24px);height:52px;padding:0}
+  .pill.menu,.pill.call,.mm,.hdr .all{display:none}
+  .pill.bur{display:flex;margin-left:auto}
+}
+</style>
+</head>
+<body>
+<header class="hdr" id="hdr"><div class="in">
+  <span class="all glass"></span>
+  <a class="pill glass logo" href="#">ЛОГО</a>
+  <nav class="pill glass menu"><a href="#" data-m="0">Каталог</a><a href="#" data-m="1">Цены</a><a href="#" data-m="2">Как работаем</a><a href="#">Отзывы</a><a href="#">Контакты</a></nav>
+  <div class="pill glass call"><b>+7 (000) 000-00-00</b><a class="btn" href="#">Главное действие</a></div>
+  <button class="pill glass bur" type="button" data-sheet="all" aria-label="Меню"><i></i></button>
+  <div class="mm glass" id="mm" aria-hidden="true">
+    <div class="mm-p" data-m="0"><div><b class="h3">Раздел одной фразой</b><p class="lead">Сколько в нём позиций и что значит цена «от»</p><a class="btn" href="#" style="margin-top:14px">Весь каталог · 99<i>→</i></a></div>
+      <div class="mm-l"><a href="#">Подборка по признаку <small>28</small></a><a href="#">Подборка по признаку <small>65</small></a><a href="#">Подборка по цене <small>20</small></a><a href="#">Подборка по опции <small>22</small></a></div>
+      <div class="mm-c"><a href="#"><span class="ph"></span>Позиция · размер · цена от</a><a href="#"><span class="ph"></span>Позиция · размер · цена от</a><a href="#"><span class="ph"></span>Позиция · размер · цена от</a></div></div>
+    <div class="mm-p" data-m="1"><div><b class="h3">Цены</b><p class="lead">Что входит в цену и что считается отдельно</p></div>
+      <div class="mm-l"><a href="#">Что входит в цену</a><a href="#">Рассрочка и кредит</a></div><div class="mm-c"><a href="#"><span class="ph"></span>Цифра-ориентир с единицей</a></div></div>
+    <div class="mm-p" data-m="2"><div><b class="h3">Как работаем</b><p class="lead">Стадии, договор, что мы не делаем</p></div>
+      <div class="mm-l"><a href="#">Стадии работы <small>5</small></a><a href="#">Договор с пояснениями</a><a href="#">Чего мы не делаем</a></div><div class="mm-c"><a href="#"><span class="ph"></span>В работе сейчас · 4</a></div></div>
+  </div>
+</div></header>
+
+<section class="hero ph" data-l=""><div><b class="h1">На первом экране – <em>три пилюли</em></b><p class="lead" style="margin-inline:auto">Наведите на «Каталог», потом прокрутите вниз: пилюли сольются в одну плашку</p></div></section>
+<section class="blk"><div class="wrap"><b class="h2">Светлый блок</b><p class="lead">После 80 px прокрутки шапка – одна стеклянная плашка.</p><div class="ph" data-l="Фото блока"></div></div></section>
+<section class="blk dark" data-tone="dark"><div class="wrap"><b class="h2">Тёмный блок</b><p class="lead">Под шапкой тёмный блок – стекло темнеет, текст светлеет.</p><div class="ph" data-l="Фото блока"></div></div></section>
+<section class="blk"><div class="wrap"><b class="h2">Снова светлый</b><div class="ph" data-l="Фото блока"></div></div></section>
+
+<div class="sheet" id="sh-all" aria-hidden="true"><div class="sh-bg" data-close></div><div class="sh-box">
+  <span class="sh-grab"></span><button class="sh-x" type="button" data-close aria-label="Закрыть">×</button>
+  <b class="sh-h">Все разделы</b>
+  <p class="mut" style="margin-bottom:14px">На телефоне меню и телефон уходят в нижнее окно, в шапке остаются логотип и бургер.</p>
+  <a class="btn wide" href="#" data-close>Главное действие<i>→</i></a>
+</div></div>
+
+<script type="application/json" id="meta">
+{
+  "id": "shapka-pilyuli",
+  "nazvanie": "Шапка из пилюль и мега-меню",
+  "tip": "SYS",
+  "etap": "UNDERSTAND",
+  "vopros": "Что здесь есть и как быстро попасть в нужный раздел?",
+  "smysl": "Шапка не закрывает первый экран сплошной полосой: три стеклянные пилюли лежат поверх картинки. Когда человек начал читать, они сливаются в одну плашку и остаются с ним. Мега-меню показывает раздел до перехода: сколько в нём позиций, какие подборки, три примера.",
+  "setka_d": "Строка шириной контента, высота 60 px. Слева логотип, по центру меню из 5–8 пунктов, справа телефон с кнопкой. Мега-меню – панель во всю ширину шапки, 3 колонки: описание раздела с кнопкой (4 из 12), список подборок с цифрами (4 из 12), мини-карточки (4 из 12).",
+  "setka_m": "Две пилюли по краям: логотип слева, бургер справа, отступ 12 px. Меню, телефон и кнопка уходят в нижнее окно «Все разделы» и в таб-бар.",
+  "animaciya": [
+    "После 80 px прокрутки стекло трёх пилюль гаснет, а общая плашка под ними проявляется и растягивается за 0,7 с – пилюли сливаются в одну",
+    "Мега-меню открывается через 120 мс после наведения (если уже открыто – сразу) и закрывается через 260 мс после ухода курсора",
+    "Панель выезжает сверху на 8 px с проявлением за 0,35–0,45 с",
+    "Над блоком с пометкой data-tone=\"dark\" стекло темнеет, текст светлеет; проверка – по точке под шапкой",
+    "Если страницу прокрутили больше чем на 160 px, открытое меню закрывается"
+  ],
+  "kak_rabotaet": [
+    "Пункты с data-m открывают свою панель; пункт без панели – обычная ссылка",
+    "Клик по пункту с панелью тоже открывает и закрывает её – это работает с клавиатуры и на планшете",
+    "В списке подборок рядом с названием стоит количество позиций: человек видит объём раздела до перехода",
+    "На телефоне наведения нет: бургер открывает нижнее окно, а главные разделы живут в таб-баре"
+  ],
+  "kogda": "Сайт от 8–10 разделов с каталогом: стройка, авто, магазин, клиника. Первый экран с крупной картинкой, которую жалко закрывать полосой шапки.",
+  "ne_kogda": "Лендинг на одну услугу: там хватит логотипа, телефона и кнопки. Мега-меню без цифр и примеров не нужно – это обычный выпадающий список.",
+  "u_cerusa": "Логотип, меню из восьми пунктов, телефон с адресом и кнопка «Подобрать дом». В мега-меню «Дома с ценами»: все 99 проектов, подборки с числами (одноэтажные 28, двухэтажные 65, с гаражом 22) и три проекта с площадью и ценой.",
+  "sled": "Под шапкой – первый экран с обещанием; на телефоне её дополняет таб-бар.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 620, "m": 640},
+  "cerus_blok": null
+}
+</script>
+<script>
+(function () {
+  var K = Kit, hdr = K.$('#hdr'), mm = K.$('#mm'), dark = K.$$('[data-tone="dark"]'), t = 0, cur = -1, y0 = 0;
+  function tone() {
+    hdr.classList.toggle('one', scrollY > 80);
+    var y = K.mob() ? 38 : 50, on = false;
+    dark.forEach(function (s) { var r = s.getBoundingClientRect(); if (r.top < y && r.bottom > y) on = true });
+    hdr.classList.toggle('dk', on);
+    if (cur > -1 && Math.abs(scrollY - y0) > 160) close();
+  }
+  function open(n) {
+    clearTimeout(t); if (K.mob()) return;
+    K.$$('.mm-p', mm).forEach(function (p) { p.classList.toggle('on', +p.dataset.m === n) });
+    K.$$('.menu a').forEach(function (a) { a.classList.toggle('act', a.dataset.m !== undefined && +a.dataset.m === n) });
+    mm.classList.add('open'); mm.setAttribute('aria-hidden', 'false'); cur = n; y0 = scrollY;
+  }
+  function close() { mm.classList.remove('open'); mm.setAttribute('aria-hidden', 'true'); K.$$('.menu a').forEach(function (a) { a.classList.remove('act') }); cur = -1 }
+  function later() { clearTimeout(t); t = setTimeout(close, 260) }
+  K.$$('.menu a[data-m]').forEach(function (a) {
+    var n = +a.dataset.m;
+    a.addEventListener('mouseenter', function () { clearTimeout(t); t = setTimeout(function () { open(n) }, cur > -1 ? 0 : 120) });
+    a.addEventListener('mouseleave', later);
+    a.addEventListener('click', function (e) { e.preventDefault(); cur === n ? close() : open(n) });
+  });
+  mm.addEventListener('mouseenter', function () { clearTimeout(t) });
+  mm.addEventListener('mouseleave', later);
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') close() });
+  addEventListener('scroll', tone, { passive: true }); addEventListener('resize', tone); tone();
+  K.sheets();
+})();
+</script>
+</body>
+</html>

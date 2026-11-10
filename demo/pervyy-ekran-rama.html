@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: первый экран в раме с подбором</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* рама: отступ 12 px от краёв окна, скругление 40, высота почти весь экран; всё внутри обрезается по скруглению */
+.hero{padding:12px 12px 0}
+.frame{position:relative;height:max(calc(100svh - 76px),500px);border-radius:40px;overflow:hidden;isolation:isolate;background:var(--soft)}
+/* сцена из слоёв: у каждого своя глубина data-d; слои шире рамы, чтобы при сдвиге не открывались края */
+.scene{position:absolute;inset:0}
+.lyr{position:absolute;will-change:transform;transition:transform 1.4s cubic-bezier(.215,.61,.355,1)}
+.far{inset:-30px;border-radius:0}
+.near{left:-90px;right:-90px;bottom:-110px;height:330px}
+.near i{position:absolute;bottom:0;border-radius:50%;background:color-mix(in srgb,var(--acc) 42%,var(--dark));filter:blur(6px);opacity:.84;transform-origin:50% 100%;animation:sway 7s ease-in-out infinite alternate}
+.near i:nth-child(1){left:0;width:290px;height:270px}
+.near i:nth-child(2){right:0;width:340px;height:320px;animation-delay:-3s}
+.near small{position:absolute;left:112px;bottom:176px;width:132px;font-size:11.5px;line-height:1.3;color:#fff}
+@keyframes sway{from{transform:rotate(-.5deg) translateX(-6px)}to{transform:rotate(.6deg) translateX(8px)}}
+/* низ сцены затемнён, чтобы белая цифра читалась на любом кадре */
+.foot{position:absolute;inset:auto 0 0;height:48%;pointer-events:none;background:linear-gradient(transparent,color-mix(in srgb,var(--dark) 58%,transparent) 60%,color-mix(in srgb,var(--dark) 74%,transparent))}
+/* шапка здесь только для масштаба: это отдельный блок */
+.hd{position:absolute;z-index:7;left:20px;right:20px;top:18px;display:flex;justify-content:space-between;pointer-events:none}
+.hd span{height:48px;padding:0 20px;border-radius:99px;display:flex;align-items:center;font-size:12.5px;font-weight:700}
+
+/* текст на «небе»: плашка-довод, заголовок, плашка с кнопкой */
+.copy{position:absolute;z-index:6;left:0;right:0;top:100px;display:grid;grid-template-columns:230px minmax(0,1fr) 230px;gap:26px;padding:0 44px;align-items:stretch}
+.plate{display:flex;flex-direction:column;justify-content:center;padding:18px;border-radius:22px}
+.note{flex-direction:row;align-items:center;gap:12px;font-size:13.5px;line-height:1.45}
+.note i{flex:none;width:40px;height:40px;border-radius:10px;background:var(--card);color:var(--acc);display:grid;place-items:center;font-style:normal;font-weight:800}
+.cta{text-align:center}
+.cta small,.m-cta small{display:block;margin-top:10px;font-size:12px;line-height:1.4;color:var(--mut)}
+.hero h1{align-self:center;text-align:center;font-size:clamp(22px,2.6vw,36px);line-height:1.12}
+.ln{display:block;overflow:hidden}
+.ln>span{display:block}
+
+/* цифра: на десктопе крупно справа внизу, на телефоне – стеклянная плашка над подбором */
+.nplate{position:absolute;z-index:6;right:44px;bottom:92px;text-align:right;color:#fff}
+.nplate i{display:none}
+.nplate .num{display:block;font-size:clamp(56px,6.6vw,88px)}
+.nplate span{display:block;margin-top:6px;font-size:13.5px;font-weight:600;line-height:1.35}
+
+/* подбор: середина плашки стоит ровно на нижней кромке рамы */
+.filter{position:relative;z-index:8;margin-top:-48px}
+.bar{width:min(940px,100% - 80px);margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;height:96px;padding:12px;border-radius:24px;background:var(--card);box-shadow:0 30px 80px rgb(0 0 0/.14)}
+.sel{position:relative;display:flex;flex-direction:column;justify-content:center;padding:0 22px;border-radius:14px;text-align:left;transition:background .4s}
+.sel.open{background:var(--soft)}
+.sel+.sel::before{content:"";position:absolute;left:0;top:26%;bottom:26%;width:1px;background:var(--line)}
+.sel small{margin-bottom:4px;font-size:12.5px;color:var(--mut)}
+.sel b{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:700}
+.sel svg{width:14px;opacity:.5;transition:transform .45s var(--ease)}
+.sel.open svg{transform:rotate(180deg)}
+@media (hover:hover){.sel:hover{background:var(--soft)}.sel:hover svg{transform:rotate(180deg)}}
+.bar .btn{height:100%;min-width:252px}
+/* выпадающий список один на три поля: встаёт под нажатое, ширина не меньше 220 px */
+.dd{position:absolute;z-index:60;left:0;top:0;padding:6px;border-radius:18px;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .35s,transform .5s var(--ease)}
+.dd.open{opacity:1;transform:none;pointer-events:auto}
+.dd button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 14px;border-radius:12px;font-size:14.5px;font-weight:600;text-align:left;transition:background .3s}
+.dd button:hover{background:var(--soft);color:var(--ink)}
+.dd button.on{color:var(--acc)}
+.dd button.on::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.m-cta{display:none;margin:16px 28px 0;text-align:center}
+.next{height:200px;margin:36px 12px 24px;border-radius:28px}
+.hint{opacity:0;transition:opacity .3s}
+.hint.on{opacity:1}
+
+@media (max-width:760px){
+  .hero{padding:8px 8px 0}
+  .frame{height:600px;border-radius:28px}
+  .near{left:-150px;right:-150px;bottom:-150px}
+  .near small{display:none}
+  .hd{left:12px;right:12px;top:12px}
+  .copy{top:92px;grid-template-columns:1fr;gap:0;padding:0 18px}
+  .copy .plate{display:none}
+  .hero h1{font-size:24px}
+  .nplate{left:16px;right:16px;bottom:76px;display:flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:20px;text-align:left;color:var(--ink)}
+  .nplate i{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--card);color:var(--acc);font-style:normal;font-weight:800}
+  .nplate .num{font-size:34px}
+  .nplate span{margin-top:0;font-size:12.5px;font-weight:500;opacity:.8}
+  .filter{margin-top:-64px}
+  .bar{width:calc(100% - 40px);grid-template-columns:1fr;height:auto;padding:8px;border-radius:22px}
+  .sel{height:60px;padding:0 14px}
+  .sel b{font-size:15px}
+  .sel+.sel::before{left:14px;right:14px;top:0;bottom:auto;width:auto;height:1px}
+  .bar .btn{height:58px;min-width:0;margin-top:6px;font-size:14.5px}
+  .m-cta{display:block}
+  .next{height:150px;margin:28px 8px 20px}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4"/></symbol></svg>
+<div class="hint" id="hint" aria-live="polite"></div>
+
+<section class="hero">
+  <div class="frame">
+    <div class="scene">
+      <div class="lyr far ph" data-d="5" data-l="Дальний слой, глубина 5: фото или видео объекта"></div>
+      <div class="lyr near" data-d="34"><i></i><i></i><small>Ближний слой, глубина 34: размытые ветки, качаются</small></div>
+    </div>
+    <div class="foot"></div>
+    <div class="hd"><span class="glass">ЛОГО</span><span class="glass">Шапка – отдельный блок</span></div>
+
+    <div class="copy">
+      <div class="plate glass note rv"><i>✓</i><span>Короткий довод доверия: <b>что открыто и можно проверить</b></span></div>
+      <h1 class="h1"><span class="ln"><span>Что получит клиент</span></span><span class="ln"><span>в своём городе</span></span><span class="ln"><span><em>и чего не будет бояться</em></span></span></h1>
+      <div class="plate glass cta rv"><a class="btn wide" href="#">Главное действие<i>→</i></a><small>Сколько вариантов в каталоге и что входит в цену «от»</small></div>
+    </div>
+
+    <div class="nplate" id="nplate"><i>✓</i><b class="num">75</b><span>главная цифра опыта:<br>что посчитали и с какого года</span></div>
+  </div>
+
+  <form class="filter" onsubmit="return false"><div class="bar rv">
+    <button class="sel" type="button" aria-haspopup="listbox"><small>Параметр 1: тип</small><b><span>Любой</span><svg><use href="#chev"/></svg></b></button>
+    <button class="sel" type="button" aria-haspopup="listbox"><small>Параметр 2: размер</small><b><span>Любой</span><svg><use href="#chev"/></svg></b></button>
+    <button class="sel" type="button" aria-haspopup="listbox"><small>Параметр 3: бюджет</small><b><span>Любой</span><svg><use href="#chev"/></svg></b></button>
+    <button class="btn" id="go" type="submit"><span>Показать варианты</span><i><svg viewBox="0 0 24 24" width="17" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg></i></button>
+  </div></form>
+  <div class="m-cta rv"><a class="btn wide" href="#">Главное действие<i>→</i></a><small>Сколько вариантов в каталоге и что входит в цену «от»</small></div>
+</section>
+<div class="ph next" data-l="Следующий блок: подбор заходит на него наполовину"></div>
+<div class="dd glass" id="dd" role="listbox"></div>
+
+<script type="application/json" id="meta">
+{
+  "id": "pervyy-ekran-rama",
+  "nazvanie": "Первый экран в раме с подбором",
+  "tip": "OFF",
+  "etap": "IDENTIFY",
+  "vopros": "Туда ли я попал и можно ли сразу посмотреть варианты под себя?",
+  "smysl": "Первый экран собран как кадр: большая скруглённая рама с живой сценой объекта, поверх неё заголовок-обещание, довод доверия, кнопка и одна крупная цифра. Снизу на раму наполовину заходит подбор из трёх параметров. Кнопка подбора сразу показывает, сколько вариантов найдётся, поэтому человек идёт в каталог уже с ожиданием, а не вслепую.",
+  "setka_d": "Рама – все 12 колонок с отступом 12 px от краёв окна, высота почти весь экран, скругление 40 px. Верхний ряд внутри рамы: плашка-довод 2 колонки слева, заголовок в три строки по центру 8 колонок, плашка с кнопкой и подписью 2 колонки справа. Цифра – 2 колонки в правом нижнем углу, над подбором. Подбор – 9 колонок по центру, высота 96 px, его середина стоит на нижней кромке рамы: три поля равной ширины и кнопка по ширине текста.",
+  "setka_m": "Всё в 4 колонки, столбиком. Рама высотой около 600 px со скруглением 28 px: заголовок по центру сверху, сцена ниже, плашка-довод и кнопка в раме скрыты. Цифра становится стеклянной плашкой на всю ширину: значок, число слева, подпись справа. Подбор заходит на раму на 64 px и стоит столбиком: три поля по 60 px с линиями между ними, кнопка на всю ширину. Под подбором – главная кнопка с подписью.",
+  "animaciya": [
+    "При загрузке сцена уменьшается с масштаба 1,08 до 1 за 2,2 с",
+    "Строки заголовка выезжают снизу из-под обрезки: сдвиг 110 % высоты строки, 1,1 с, шаг между строками 80 мс, старт через 0,35 с",
+    "Плашки, подбор и кнопка под ним появляются сдвигом 30 px с прозрачностью за 1 с, шаг 80 мс, старт через 0,7 с",
+    "Цифра приходит только сдвигом 40 px за 1,1 с, без прозрачности: на телефоне она стеклянная, а размытие фона под прозрачностью пропадает",
+    "Слои сцены едут против курсора: дальний (глубина 5) максимум на 4 px, ближний (глубина 34) на 27 px по горизонтали и 17 px по вертикали, догоняют за 1,4 с. Курсор считается по всему окну. Только мышь, на тач выключено",
+    "Ближний слой постоянно покачивается: поворот от -0,5 до 0,6 градуса, цикл 7 с",
+    "Список под полем проявляется за 0,35 с со сдвигом 6 px, стрелка поля поворачивается на 180 градусов за 0,45 с",
+    "При prefers-reduced-motion появление, глубина и покачивание выключены"
+  ],
+  "kak_rabotaet": [
+    "Варианты – массив в демо: тип, размер, цена. На сайте это список каталога, он приходит одним запросом при первом выборе",
+    "Список один на три поля: по нажатию заполняется вариантами этого поля и встаёт под ним, ширина не меньше 220 px. Закрывают выбор, клик мимо, Esc и изменение размера окна",
+    "После каждого выбора число пересчитывается по массиву, текст кнопки меняется: «Показать N вариантов» со склонением слова",
+    "Если вариантов 0, кнопка пишет «Таких нет – сделаем под вас» и ведёт не в каталог, а в раздел работы на заказ",
+    "Иначе кнопка ведёт в каталог с выбором в адресе (?type=2&size=1), и каталог открывается уже отфильтрованным",
+    "В демо переходов нет: адрес, куда ведёт кнопка, показывается подсказкой сверху",
+    "Глубина слоя задаётся в разметке (data-d): сдвиг равен положению курсора от центра окна, умноженному на глубину"
+  ],
+  "kogda": "Главная сайта с каталогом, где выбор начинается с 2–3 понятных параметров: дома, авто, туры, техника, мебель. Нужен сильный живой кадр – фото или видео объекта.",
+  "ne_kogda": "Одна услуга без каталога: подбирать нечего, нужен оффер с формой. Нет хорошего кадра – рама покажет его слабость. Если вариантов меньше десятка, число на кнопке работает против: лучше показать их сразу.",
+  "u_cerusa": "Заголовок-вопрос про каменный дом в Ярославле без страха сорванных сроков. Слева плашка «Цены проектов открыты, на любую стройку можно приехать», справа кнопка «Подобрать дом» (ведёт на /podbor/) с подписью «99 проектов из камня. Цена «от» – за тёплый контур». Цифра 42 – «дома построили с 2014 года, 28 – с фото на сайте». Фон – фото и видео стройки (для телефона отдельный файл), ближний слой – размытые сосны. Поля: Этажность, Площадь, Цена. Кнопка «Показать 99 домов» ведёт на /proekty/ с параметрами etazh, pl, cena; при нуле – «Таких нет – спроектируем» и /proektirovanie/. Список домов подгружается с /api/doma/ при первом выборе. Построчный выезд заголовка заложен в скрипте, но в текущей разметке строк нет: заголовок появляется целиком, сдвигом 30 px.",
+  "sled": "Факты и гарантии: обещание из заголовка сразу подкрепляется цифрами. Кто уже готов выбирать, уходит через подбор в каталог.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 720, "m": 760},
+  "cerus_blok": 0
+}
+</script>
+<script>
+(function () {
+  var K = Kit, d = document;
+  /* варианты каталога: [тип, размер, цена] */
+  var DATA = [[1, 72, 3.9], [1, 88, 4.6], [1, 96, 5.2], [1, 118, 6.1], [2, 104, 5.4], [2, 126, 6.8], [2, 139, 7.5], [2, 152, 8.4], [3, 148, 7.9], [3, 165, 9.2], [3, 182, 10.5], [3, 210, 12.8]];
+  var OPT = [['Любой', 'Тип А', 'Тип Б', 'Тип В'], ['Любой', 'до 100 м²', '100–150 м²', 'от 150 м²'], ['Любой', 'до 5 млн ₽', '5–8 млн ₽', 'от 8 млн ₽']];
+  var RNG = [null, [[0, 100], [100, 150], [150, 1e9]], [[0, 5], [5, 8], [8, 1e9]]], KEY = ['type', 'size', 'price'];
+
+  /* появление первого экрана: по времени от загрузки, не по прокрутке */
+  function from(sel, kf, ms, at, step, ease) {
+    K.$$(sel).forEach(function (el, i) { el.animate(kf, { duration: ms, delay: at + i * (step || 0), easing: ease || K.EXPO, fill: 'backwards' }) });
+  }
+  if (!K.reduce) {
+    from('.scene', { transform: ['scale(1.08)', 'none'] }, 2200, 0, 0, 'cubic-bezier(.215,.61,.355,1)');
+    from('.ln>span', { transform: ['translateY(110%)', 'none'] }, 1100, 350, 80);
+    from('.hero .rv', { transform: ['translateY(30px)', 'none'], opacity: [0, 1] }, 1000, 700, 80);
+    from('.nplate', { transform: ['translateY(40px)', 'none'] }, 1100, 900);
+  }
+
+  /* цифра на телефоне – стекло */
+  var np = K.$('#nplate');
+  function glass() { np.classList.toggle('glass', K.mob()) }
+  glass(); addEventListener('resize', glass);
+
+  /* глубина: слои едут против курсора, чем больше data-d, тем сильнее; только мышь */
+  if (K.fine && !K.reduce) {
+    var L = K.$$('[data-d]');
+    addEventListener('mousemove', function (e) {
+      var nx = e.clientX / innerWidth - .5, ny = e.clientY / innerHeight - .5;
+      L.forEach(function (el) { var z = +el.dataset.d; el.style.transform = 'translate(' + (-nx * z * 1.6).toFixed(1) + 'px,' + (-ny * z).toFixed(1) + 'px)' });
+    }, { passive: true });
+  }
+
+  /* подбор: один список на три поля */
+  var dd = K.$('#dd'), cur = null, pick = [0, 0, 0], go = K.$('#go'), n = 0, hint = K.$('#hint'), tm = 0;
+  function closeDd() { dd.classList.remove('open'); if (cur) { cur.classList.remove('open'); cur.setAttribute('aria-expanded', 'false') } cur = null }
+  K.$$('.sel').forEach(function (s, k) {
+    s.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (cur === s) return closeDd();
+      closeDd(); cur = s; s.classList.add('open'); s.setAttribute('aria-expanded', 'true');
+      dd.textContent = '';
+      OPT[k].forEach(function (o, i) {
+        var b = d.createElement('button'); b.type = 'button'; b.textContent = o; if (i === pick[k]) b.className = 'on';
+        b.addEventListener('click', function () { pick[k] = i; K.$('b span', s).textContent = o; count(); closeDd() });
+        dd.appendChild(b);
+      });
+      var r = s.getBoundingClientRect();
+      dd.style.left = (r.left + scrollX) + 'px'; dd.style.top = (r.bottom + scrollY + 8) + 'px'; dd.style.width = Math.max(r.width, 220) + 'px';
+      dd.classList.add('open');
+      /* в демо окно низкое: подкручиваем страницу, чтобы список был виден целиком */
+      var over = r.bottom + dd.offsetHeight + 20 - innerHeight;
+      if (over > 0) scrollBy({ top: over, behavior: K.reduce ? 'auto' : 'smooth' });
+    });
+  });
+  d.addEventListener('click', function (e) { if (!dd.contains(e.target)) closeDd() });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDd() });
+  addEventListener('resize', function () { closeDd(); dd.style.left = dd.style.top = 0 });
+
+  /* живое число на кнопке */
+  function word(v) { var a = v % 10, b = v % 100; return a === 1 && b !== 11 ? 'вариант' : a >= 2 && a <= 4 && (b < 12 || b > 14) ? 'варианта' : 'вариантов' }
+  function ok(p, k) { var s = pick[k]; return !s || (k ? p[k] >= RNG[k][s - 1][0] && p[k] < RNG[k][s - 1][1] : p[0] === s) }
+  function count() {
+    n = DATA.filter(function (p) { return ok(p, 0) && ok(p, 1) && ok(p, 2) }).length;
+    K.$('span', go).textContent = n ? 'Показать ' + n + ' ' + word(n) : 'Таких нет – сделаем под вас';
+  }
+  count();
+  go.addEventListener('click', function () {
+    var q = pick.map(function (v, k) { return v ? KEY[k] + '=' + v : '' }).filter(Boolean).join('&');
+    hint.textContent = 'Кнопка ведёт на ' + (n ? '/catalog/' + (q ? '?' + q : '') : '/custom/');
+    hint.classList.add('on'); clearTimeout(tm); tm = setTimeout(function () { hint.classList.remove('on') }, 2600);
+  });
+})();
+</script>
+</body>
+</html>
