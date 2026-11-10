@@ -56,6 +56,9 @@ try {
       await page.waitForTimeout(900);
       const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       if (over > 1) fail(f, `горизонтальная прокрутка на ${W[v]}: +${over}px`);
+      // иконка SVG с шириной, но без высоты, растягивается до 150 px и ломает строку (так съехал подбор 11.11)
+      const tall = await page.evaluate(() => [...document.querySelectorAll('svg')].filter((s) => { const r = s.getBoundingClientRect(); return r.width > 0 && r.width < 40 && r.height > 100 }).length);
+      if (tall) fail(f, `${tall} SVG-иконок без высоты (растянуты по вертикали)`);
       if (errs.length) fail(f, `ошибки (${v}): ` + errs.slice(0, 3).join(' | '));
       if (shots) { await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(300); await page.screenshot({ path: join(shots, `${meta.id}-${v}-1.png`), fullPage: true }) }
       await ctx.close();
