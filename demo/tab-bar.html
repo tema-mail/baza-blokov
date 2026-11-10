@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: таб-бар и окно «Связаться»</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* мини-шапка: логотип + бургер, обе – стеклянные пилюли */
+.top{position:fixed;z-index:60;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;pointer-events:none}
+.top>*{pointer-events:auto;height:48px;border-radius:99px;display:flex;align-items:center;gap:8px;padding:0 16px;font-weight:800;letter-spacing:.12em}
+.top .bur{width:48px;justify-content:center;padding:0}
+.top .bur i{width:18px;height:8px;border-top:2px solid;border-bottom:2px solid}
+.top.dk>*{background:linear-gradient(rgb(44 47 52/.84),rgb(28 30 34/.76));color:#fff}
+.hero{height:92svh;min-height:560px;display:grid;align-content:end;padding:0 16px 28px}
+.hero .ph{position:absolute;inset:8px 8px auto;height:calc(92svh - 16px);min-height:544px;border-radius:28px;z-index:-1}
+.blk{padding:44px 16px}
+.blk .ph{height:180px;margin-top:16px}
+.dark{background:var(--dark);color:#fff;border-radius:28px;margin:0 8px}
+.dark .mut{color:#a9adab}
+.dark .ph{background:#2b2f31}
+
+/* таб-бар: стеклянная пилюля, 4 пункта; спрятан под экран, пока виден первый экран */
+.mnav{position:fixed;z-index:70;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));height:66px;display:flex;align-items:center;justify-content:space-around;border-radius:99px;transform:translateY(120%);transition:transform .7s var(--ease),background .4s,color .4s}
+.mnav.on{transform:none}
+.mnav a,.mnav button{display:flex;flex-direction:column;align-items:center;gap:4px;width:25%;font-size:10.5px;font-weight:700}
+.mnav svg{width:20px;height:20px;color:var(--acc)}
+.mnav.dk svg{color:#5fd6a0}
+
+/* лист «Связаться» */
+.sh-row{display:flex;align-items:center;gap:14px;padding:12px;border-radius:18px;background:var(--soft)}
+.sh-ic{flex:none;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--acc);color:#fff;font-weight:800}
+.sh-row b{display:block;font:800 16px/1.2 system-ui}
+.sh-row small,.sh-note{font-size:12.5px;color:var(--mut)}
+.sh-soc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 14px}
+.sh-soc a{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:16px;background:var(--soft);font-size:12px;font-weight:700}
+.sh-soc span{width:22px;height:22px;border-radius:6px;background:var(--acc)}
+.sh-note{margin-top:14px;line-height:1.5}
+/* лист «Все разделы»: плитки 2 в ряд, у каждой – уточнение второй строкой */
+.sh-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sh-grid a{padding:14px;border-radius:16px;background:var(--soft)}
+.sh-grid b{display:block;font-size:14px}
+.sh-grid small{display:block;margin-top:3px;font-size:12px;color:var(--mut)}
+
+/* cookie: плашка над таб-баром, появляется через 1,8 с */
+.ck{position:fixed;z-index:80;left:12px;right:12px;bottom:90px;display:flex;align-items:flex-end;gap:12px;padding:16px;border-radius:22px;background:var(--card);box-shadow:0 10px 40px rgb(0 0 0/.18);opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s var(--ease)}
+.ck.on{opacity:1;transform:none}
+.ck p{flex:1;font-size:13px;line-height:1.45;color:var(--mut)}
+.ck b{display:block;color:var(--ink);font-size:14px;margin-bottom:4px}
+.ck button{height:44px;padding:0 18px;border-radius:12px;background:var(--ink);color:var(--paper);font-weight:700}
+</style>
+</head>
+<body>
+<div class="top" id="top"><a class="glass" href="#">ЛОГО</a><button class="glass bur" type="button" data-sheet="all" aria-label="Меню"><i></i></button></div>
+
+<section class="hero"><div class="ph" data-l="Первый экран: пока он виден, таб-бара нет"></div>
+  <b class="h1">Прокрутите вниз – <em>появится таб-бар</em></b></section>
+
+<section class="blk"><b class="h2">Светлый блок</b><p class="lead">Таб-бар светлый, стеклянный. Четыре пункта: три главных раздела и «Связь».</p><div class="ph" data-l="Фото блока"></div><div class="ph" data-l="Фото блока"></div></section>
+
+<section class="blk dark" data-tone="dark"><b class="h2">Тёмный блок</b><p class="lead mut">Когда под таб-баром тёмный блок, плашка темнеет, а иконки светлеют. То же с шапкой.</p><div class="ph" data-l="Фото блока"></div><div class="ph" data-l="Фото блока"></div></section>
+
+<section class="blk"><b class="h2">Снова светлый</b><p class="lead">Нажмите «Связь» – снизу выедет окно: телефон, мессенджеры, главная кнопка, адрес.</p><div class="ph" data-l="Фото блока"></div><div class="ph" data-l="Фото блока"></div></section>
+
+<nav class="mnav glass" aria-label="Быстрое меню">
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>Каталог</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Работы</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>Подбор</a>
+  <button type="button" data-sheet="call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg>Связь</button>
+</nav>
+
+<div class="sheet" id="sh-call" aria-hidden="true"><div class="sh-bg" data-close></div><div class="sh-box">
+  <span class="sh-grab"></span><button class="sh-x" type="button" data-close aria-label="Закрыть">×</button>
+  <b class="sh-h">Связаться</b>
+  <a class="sh-row" href="#"><span class="sh-ic">☎</span><span><b>+7 (000) 000-00-00</b><small>Позвонить в офис</small></span></a>
+  <div class="sh-soc"><a href="#"><span></span>ВКонтакте</a><a href="#"><span></span>Telegram</a><a href="#"><span></span>MAX</a></div>
+  <a class="btn wide" href="#" data-close>Действие ниши: записаться<i>→</i></a>
+  <p class="sh-note">Адрес офиса одной строкой – чтобы человек понял, куда ехать</p>
+</div></div>
+
+<div class="sheet" id="sh-all" aria-hidden="true"><div class="sh-bg" data-close></div><div class="sh-box">
+  <span class="sh-grab"></span><button class="sh-x" type="button" data-close aria-label="Закрыть">×</button>
+  <b class="sh-h">Все разделы</b>
+  <div class="sh-grid">
+    <a href="#"><b>Цены</b><small>что входит</small></a><a href="#"><b>Рассрочка</b><small>два банка</small></a>
+    <a href="#"><b>Как работаем</b><small>пять стадий</small></a><a href="#"><b>Договор</b><small>с пояснениями</small></a>
+    <a href="#"><b>Отзывы</b><small>с видео</small></a><a href="#"><b>Контакты</b><small>офис и телефон</small></a>
+  </div>
+  <a class="btn wide" href="#" data-close>Обсудим вашу задачу<i>→</i></a>
+</div></div>
+
+<div class="ck" id="ck"><p><b>Короткая фраза в голосе бренда</b>Сайт использует cookie и Метрику. Ссылка на политику.</p><button type="button">Принять</button></div>
+
+<script type="application/json" id="meta">
+{
+  "id": "tab-bar",
+  "nazvanie": "Таб-бар и окно «Связаться»",
+  "tip": "SYS",
+  "etap": "ACT",
+  "vopros": "Как с телефона за одно касание попасть в главный раздел или связаться?",
+  "smysl": "На телефоне шапка занята логотипом, меню спрятано. Таб-бар держит под большим пальцем три главных раздела и связь. Последний пункт не уводит на страницу, а открывает окно: телефон, мессенджеры, главное действие, адрес.",
+  "setka_d": "На десктопе блока нет: его роль играет шапка с телефоном и кнопкой.",
+  "setka_m": "Плашка во всю ширину с отступом 12 px от краёв и низа, высота 66 px, скругление полное. 4 равных пункта: иконка 20 px над подписью 10,5 px. Окно – лист снизу с отступом 8 px, скругление 28 px: ручка, заголовок, строка телефона, 3 плитки мессенджеров в ряд, кнопка на всю ширину, адрес.",
+  "animaciya": [
+    "Таб-бар спрятан под экран (сдвиг 120 %) и выезжает за 0,7 с, когда первый экран ушёл вверх на 65 %",
+    "Над блоком с пометкой data-tone=\"dark\" плашка темнеет, иконки светлеют; проверка – по точке в 44 px от низа экрана",
+    "Лист выезжает снизу за 0,6 с, фон темнеет за 0,45 с; прокрутка страницы под ним замирает",
+    "Закрытие: крестик, тап по фону, свайп вниз от 80 px, Esc",
+    "Cookie-плашка появляется через 1,8 с и встаёт над таб-баром (низ 90 px), а не поверх него"
+  ],
+  "kak_rabotaet": [
+    "Пункты 1–3 – обычные ссылки на разделы, 4-й – кнопка с data-sheet=\"call\"",
+    "Бургер в шапке открывает второй лист «Все разделы»: плитки 2 в ряд, у каждой вторая строка-уточнение («Цены – что входит»)",
+    "Кнопка в листе называет действие ниши и ведёт на страницу или форму",
+    "Отступ снизу учитывает вырез телефона: max(12px, env(safe-area-inset-bottom))"
+  ],
+  "kogda": "Любой сайт на телефоне до 760 px: услуги, каталог, магазин. Пункты подбираются под нишу.",
+  "ne_kogda": "Одностраничный лендинг под один оффер с липкой кнопкой заявки: там таб-бар спорит с кнопкой. Ссылки, которой нет (например MAX), в окне не ставим.",
+  "u_cerusa": "Дома, Объекты, Подбор, Связь. В окне: телефон, ВКонтакте, Telegram, MAX, «Договориться о встрече», адрес офиса. Таб-бар стоит на всех страницах сайта, включая каталог.",
+  "sled": "Окно «Связаться» ведёт на страницу контактов или форму заявки.",
+  "vid": ["m"],
+  "vysota": {"m": 720},
+  "cerus_blok": null
+}
+</script>
+<script>
+(function () {
+  var K = Kit, mnav = K.$('.mnav'), hero = K.$('.hero'), top = K.$('#top'), dark = K.$$('[data-tone="dark"]');
+  function upd() {
+    mnav.classList.toggle('on', hero.getBoundingClientRect().bottom < innerHeight * .35);
+    var yH = 36, yN = innerHeight - 44, onH = false, onN = false;
+    dark.forEach(function (s) { var r = s.getBoundingClientRect(); if (r.top < yH && r.bottom > yH) onH = true; if (r.top < yN && r.bottom > yN) onN = true });
+    top.classList.toggle('dk', onH); mnav.classList.toggle('dk', onN);
+  }
+  addEventListener('scroll', upd, { passive: true }); addEventListener('resize', upd); upd();
+  K.sheets();
+  var ck = K.$('#ck');
+  setTimeout(function () { ck.classList.add('on') }, 1800);
+  K.$('button', ck).addEventListener('click', function () { ck.classList.remove('on') });
+})();
+</script>
+</body>
+</html>
