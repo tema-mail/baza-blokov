@@ -85,6 +85,15 @@ figure{margin:0}
 .zoom-n.p{left:14px;top:50%}
 .zoom-n.n{right:14px;top:50%}
 
+/* референсы: снимки сеткой, страница целиком – первой и шире */
+.ref-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-items:start;margin-top:10px}
+.ref-g .shot:first-child{grid-column:1/-1;max-height:520px}
+.ref-g .shot{max-height:360px}
+.strip{max-height:360px;overflow:auto;border-radius:12px;border:1px solid var(--line);display:flex;flex-direction:column}
+.strip .shot{border:0;border-radius:0;max-height:none}
+.strip small{padding:4px 8px}
+details summary{cursor:pointer;font-weight:600;margin-top:10px}
+
 /* таблицы */
 .tbl{overflow-x:auto;background:var(--card);border-radius:16px}
 table{border-collapse:collapse;width:100%;font-size:14.5px}

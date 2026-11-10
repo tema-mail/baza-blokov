@@ -20,7 +20,7 @@ TIP = {"SYS": "Системный", "OFF": "Оффер", "PROD": "Продукт
 ETAP = {"UNDERSTAND": "Понять", "IDENTIFY": "Узнать себя", "WANT": "Захотеть", "BELIEVE": "Поверить",
         "EVALUATE": "Оценить", "REDUCE RISK": "Снять риск", "ACT": "Действовать", "—": "вне этапов"}
 NAV = [("index.html", "База блоков"), ("cerus.html", "Разбор Церуса"),
-       ("setki.html", "Сетки из Figma"), ("klassifikator.html", "Классификатор")]
+       ("setki.html", "Сетки из Figma"), ("referensy.html", "Референсы"), ("klassifikator.html", "Классификатор")]
 VID = {"m": "Телефон 390", "d": "Десктоп 1280"}
 # порядок карточек: сначала системные, дальше – как блоки идут на странице-образце
 PERVYE = ["tab-bar", "shapka-pilyuli"]
@@ -186,6 +186,7 @@ def build_index(bloki, geo):
 <div class="box"><ul>
 <li><a href="cerus.html">Разбор сайта «Церус»</a> – живой сайт-образец: код, снимки 390 и 1440, геометрия блоков.</li>
 <li><a href="setki.html">Сетки из Figma</a> – ч/б сетки нашего проекта: {n_fg} схем, TargetFactory (12 колонок на десктопе, 4 на телефоне).</li>
+<li><a href="referensy.html">Референсы из Figma</a> – файл «Блоки примеры стандартизация»: чужие сайты по типам блоков, снятые по страницам и связанные с нашими демо.</li>
 <li><a href="klassifikator.html">Классификатор смысловых блоков</a> – наша таблица на {n_kl} блока: тип, класс, этап решения.</li>
 </ul></div>"""
     (SITE / "index.html").write_text(page("index.html", "База блоков", body), encoding="utf8")
@@ -210,6 +211,8 @@ def main():
     import build_dop
     build_cerus.build(bloki, geo)
     build_dop.build(bloki)
+    import build_ref
+    print(f"референсов из Figma: {build_ref.build(bloki)}")
     print(f"страниц: {len(list(SITE.glob('*.html')))}, блоков: {len(bloki)}")
     import tema
     tema.main()

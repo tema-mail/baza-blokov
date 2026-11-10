@@ -12,7 +12,7 @@ const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(k); return i > -1 ? args[i + 1] : null };
 const shots = opt('--shots'), ext = opt('--url');
 const PORT = 8765, BASE = ext || `http://127.0.0.1:${PORT}/`;
-const PAGES = ['index.html', 'cerus.html', 'setki.html', 'klassifikator.html'];
+const PAGES = ['index.html', 'cerus.html', 'setki.html', 'referensy.html', 'klassifikator.html'];
 const VIEWS = [{ k: 'm', w: 390, h: 844 }, { k: 'd', w: 1440, h: 900 }];
 if (shots) mkdirSync(shots, { recursive: true });
 
@@ -52,7 +52,7 @@ try {
     if (shots) {
       await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(300);
       await page.screenshot({ path: join(shots, `${p.replace('.html', '')}-${v.k}-top.png`) });
-      const sel = p === 'index.html' ? '.blok' : p === 'cerus.html' ? '#b03' : p === 'setki.html' ? '.blok:nth-of-type(3)' : '#kl-body';
+      const sel = p === 'index.html' ? '.blok' : p === 'cerus.html' ? '#b03' : (p === 'setki.html' || p === 'referensy.html') ? '.blok:nth-of-type(3)' : '#kl-body';
       const el = page.locator(sel).first();
       if (await el.count()) { await el.scrollIntoViewIfNeeded(); await page.waitForTimeout(1500); await page.screenshot({ path: join(shots, `${p.replace('.html', '')}-${v.k}-blok.png`) }) }
     }
