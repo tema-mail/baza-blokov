@@ -10694,47 +10694,6 @@
      "tip": "content"
     }
    ]
-  },
-  {
-   "id": "rf-desert-surf-camp-4",
-   "slug": "desert-surf-camp-4",
-   "title": "Desert Surf Camp",
-   "site": "https://desertsurfcamp.com/",
-   "vid": "sekciya",
-   "tip_ref": "cta",
-   "tip_ref_name": "Призыв к действию",
-   "tegi": {
-    "tematika": [
-     "Путешествия и туризм"
-    ],
-    "cveta": [
-     "Белый",
-     "Серый"
-    ],
-    "stil": [
-     "Минимализм",
-     "Брутализм"
-    ],
-    "tipografika": [
-     "Без засечек",
-     "Декоративные"
-    ]
-   },
-   "istochnik": "https://referest.ru/screens/desert-surf-camp-4",
-   "cover": "ref/rf/desert-surf-camp-4/cover.webp",
-   "h": 541,
-   "kollekcii": [],
-   "dobavleno": "2026-11-11",
-   "bloki": [
-    {
-     "n": 0,
-     "img": "ref/rf/desert-surf-camp-4/0.webp",
-     "w": 1000,
-     "h": 541,
-     "y": 0,
-     "tip": "cta"
-    }
-   ]
   }
  ]
 }
