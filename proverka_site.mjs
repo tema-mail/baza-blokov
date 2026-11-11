@@ -12,7 +12,7 @@ const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(k); return i > -1 ? args[i + 1] : null };
 const shots = opt('--shots'), ext = opt('--url');
 const PORT = 8765, BASE = ext || `http://127.0.0.1:${PORT}/`;
-const PAGES = ['index.html', 'pervyy-ekran.html', 'cerus.html', 'setki.html', 'referensy.html', 'klassifikator.html'];
+const PAGES = ['index.html', 'biblioteka.html', 'pervyy-ekran.html', 'cerus.html', 'setki.html', 'referensy.html', 'klassifikator.html'];
 const VIEWS = [{ k: 'm', w: 390, h: 844 }, { k: 'd', w: 1440, h: 900 }];
 if (shots) mkdirSync(shots, { recursive: true });
 

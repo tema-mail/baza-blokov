@@ -1,0 +1,55 @@
+/* Библиотека референсов (biblioteka.html): разбивка как у Referest – вкладки, ряд типов, сетка карточек, просмотр. */
+.lib-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.lib-head>div:first-child{flex:1 1 520px}
+.lib-act{display:flex;gap:8px;align-items:center;margin-top:24px}
+.btn-main{padding:11px 18px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font:700 15px/1 inherit;font-family:inherit;cursor:pointer}
+.chip.danger{background:color-mix(in srgb,#d33 16%,var(--card))}
+
+.lib-tabs{display:inline-flex;gap:4px;padding:4px;border-radius:14px;background:var(--soft);margin:8px 0 10px}
+.lib-tabs button{padding:9px 18px;border:0;border-radius:10px;background:transparent;color:var(--ink);font:700 15px/1 inherit;font-family:inherit;cursor:pointer}
+.lib-tabs button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.lib-tabs.sm button{padding:7px 12px;font-size:14px}
+.lib-types{display:flex;gap:4px;overflow-x:auto;padding:4px;border-radius:14px;background:var(--soft);scrollbar-width:thin}
+.lib-types button{flex:0 0 auto;padding:8px 13px;border:0;border-radius:10px;background:transparent;color:var(--mut);font:600 14px/1 inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.lib-types button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.lib-types i{font-style:normal;opacity:.6;font-size:12px}
+.lib-f{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 6px;align-items:center}
+.lib-f input[type=search],.lib-f select{font:inherit;font-size:16px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
+.lib-f input[type=search]{flex:1 1 220px}
+.lib-f select{flex:0 1 190px}
+.lib-chk{font-size:14px;display:flex;gap:6px;align-items:center;color:var(--mut)}
+
+.lib-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:8px}
+.lc{position:relative;background:var(--card);border-radius:16px;border:1px solid var(--line);overflow:hidden}
+.lc-img{display:block;width:100%;padding:0;border:0;background:var(--soft);cursor:zoom-in;aspect-ratio:16/10;overflow:hidden;position:relative}
+.lc-img img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .4s}
+.lc:hover .lc-img img{transform:scale(1.03)}
+.lc-part{position:absolute;left:8px;bottom:8px;padding:3px 8px;border-radius:99px;background:rgba(0,0,0,.6);color:#fff;font-size:12px}
+.lc-b{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.lc-b b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-b small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-del{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:20px;line-height:1;cursor:pointer;opacity:0;transition:opacity .2s}
+.lc:hover .lc-del,.lc-del:focus{opacity:1}
+@media (hover:none){.lc-del{opacity:.85}}
+.lib-more{display:block;margin:20px auto}
+
+/* просмотр и окна */
+.lib-ov{position:fixed;inset:0;z-index:60;background:rgba(10,10,12,.72);overflow:auto;padding:24px}
+.lib-ov[hidden]{display:none}
+.ov-w{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;max-width:1400px;margin:0 auto;align-items:start}
+.ov-shots{display:flex;flex-direction:column;gap:0;background:var(--card);border-radius:14px;overflow:hidden}
+.ov-b{margin:0;scroll-margin-top:10px}
+.ov-b figcaption{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 12px;background:var(--soft);font-size:13px;font-weight:600}
+.ov-b img{width:100%}
+.ov-side{position:sticky;top:0;background:var(--card);border-radius:14px;padding:18px}
+.ov-side dl{margin:10px 0}.ov-side dt{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin-top:8px}.ov-side dd{margin:2px 0 0}
+.ov-side select,.ov-b select,.dlg input,.dlg select{font:inherit;font-size:16px;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+.ov-x{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:var(--soft);color:var(--ink);font-size:24px;line-height:1;cursor:pointer}
+.ov-side h3{padding-right:44px}
+.dlg{position:relative;max-width:520px;margin:6vh auto;background:var(--card);border-radius:18px;padding:22px}
+.dlg label{display:flex;flex-direction:column;gap:4px;margin:10px 0;font-size:14px;font-weight:600}
+.dlg label[hidden]{display:none}
+.dlg-a{display:flex;gap:8px;margin-top:12px}
+
+@media (max-width:980px){.lib-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-w{grid-template-columns:1fr}.ov-side{position:relative;order:-1}}
+@media (max-width:560px){.lib-grid{gap:10px}.lc-b{padding:8px}.lc-b b{font-size:13px}.lib-ov{padding:8px}.lib-f select{flex:1 1 40%}}

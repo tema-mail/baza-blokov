@@ -19,7 +19,7 @@ TIP = {"SYS": "Системный", "OFF": "Оффер", "PROD": "Продукт
        "MEDIA": "Форматы", "NICHE": "Нишевые"}
 ETAP = {"UNDERSTAND": "Понять", "IDENTIFY": "Узнать себя", "WANT": "Захотеть", "BELIEVE": "Поверить",
         "EVALUATE": "Оценить", "REDUCE RISK": "Снять риск", "ACT": "Действовать", "—": "вне этапов"}
-NAV = [("index.html", "База блоков"), ("cerus.html", "Разбор Церуса"),
+NAV = [("index.html", "База блоков"), ("biblioteka.html", "Библиотека"), ("cerus.html", "Разбор Церуса"),
        ("pervyy-ekran.html", "Первый экран"), ("setki.html", "Сетки из Figma"), ("referensy.html", "Референсы"), ("klassifikator.html", "Классификатор")]
 VID = {"m": "Телефон 390", "d": "Десктоп 1280"}
 # порядок карточек: сначала системные, дальше – как блоки идут на странице-образце
@@ -191,6 +191,7 @@ def build_index(bloki, geo):
 {''.join(card(b, geo) for b in bloki)}
 <h2>Откуда собрано</h2>
 <div class="box"><ul>
+<li><a href="biblioteka.html">Библиотека референсов</a> – понравившиеся сайты по разбивке Referest: секции по типам и страницы целиком, порезанные на блоки; добавлять и удалять можно прямо там.</li>
 <li><a href="cerus.html">Разбор сайта «Церус»</a> – живой сайт-образец: код, снимки 390 и 1440, геометрия блоков.</li>
 <li><a href="setki.html">Сетки из Figma</a> – ч/б сетки нашего проекта: {n_fg} схем, TargetFactory (12 колонок на десктопе, 4 на телефоне).</li>
 <li><a href="referensy.html">Референсы из Figma</a> – файл «Блоки примеры стандартизация»: чужие сайты по типам блоков, снятые по страницам и связанные с нашими демо.</li>
@@ -223,6 +224,8 @@ def main():
     build_hero.build(bloki, geo)
     import build_ref
     print(f"референсов из Figma: {build_ref.build(bloki)}")
+    import build_lib
+    print(f"библиотека (Referest и свои): {build_lib.build()}")
     print(f"страниц: {len(list(SITE.glob('*.html')))}, блоков: {len(bloki)}")
     import tema
     tema.main()
