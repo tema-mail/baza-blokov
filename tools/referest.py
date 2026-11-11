@@ -7,6 +7,7 @@
   python3 tools/referest.py kollekciya 12343242     – вся коллекция
   python3 tools/referest.py ekran kirpich           – один экран (slug или ссылка referest.ru/screens/…)
   python3 tools/referest.py vhodyashie              – обработать data/referest-inbox.json (кнопка «Добавить» на сайте)
+  python3 tools/referest.py razmetka otvet*.json     – типы блоков из разметки: {slug: [{n, tip, slit, dva}]}; slit – склеить с предыдущим
 """
 import io
 import json
@@ -159,6 +160,38 @@ def zapisat_item(baza, it, kollekciya_id=None, renarezat=False):
     return f"{vid}, блоков {len(bloki)}"
 
 
+def razmetka(baza, otvety):
+    """Применить разметку: тип каждого блока, склейка кусков одного блока (slit) по исходному снимку из кэша."""
+    po_slug = {x["slug"]: x for x in baza["items"]}
+    n_tip = n_slit = 0
+    for slug, spisok in otvety.items():
+        x = po_slug.get(slug)
+        if not x or not spisok or len(spisok) != len(x["bloki"]):
+            print("пропуск", slug, "– нет записи или не совпало число блоков")
+            continue
+        im = None
+        c = CACHE / (slug + ".webp")
+        if c.exists():
+            im = Image.open(c).convert("RGB")
+            im = im.resize((W, round(im.height * W / im.width)), Image.LANCZOS)
+        novye = []
+        for b, r in zip(x["bloki"], sorted(spisok, key=lambda q: q["n"])):
+            b["tip"] = r.get("tip") or None
+            if r.get("dva"):
+                b["dva"] = True
+            if r.get("slit") and novye and im is not None and novye[-1]["tip"] == b["tip"]:
+                pr = novye[-1]
+                pr["h"] = b["y"] + b["h"] - pr["y"]
+                im.crop((0, pr["y"], W, pr["y"] + pr["h"])).save(ROOT / pr["img"], "WEBP", quality=Q, method=5)
+                (ROOT / b["img"]).unlink(missing_ok=True)
+                n_slit += 1
+                continue
+            novye.append(b)
+            n_tip += 1
+        x["bloki"] = novye
+    print(f"размечено блоков: {n_tip}, склеено кусков: {n_slit}")
+
+
 def load():
     return json.loads(DATA.read_text(encoding="utf8")) if DATA.exists() else {"items": []}
 
@@ -211,6 +244,11 @@ def main():
                     f.unlink()
                 d.rmdir()
                 print("убран", d.name)
+    elif cmd == "razmetka":
+        otvety = {}
+        for f in sys.argv[2:]:
+            otvety |= json.loads(Path(f).read_text(encoding="utf8"))
+        razmetka(baza, otvety)
     elif cmd == "ekran":
         it = api_item(slug_iz(sys.argv[2]))
         print(it["slug"], zapisat_item(baza, it, None, "--renarezat" in sys.argv))
