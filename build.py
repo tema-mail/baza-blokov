@@ -20,7 +20,7 @@ TIP = {"SYS": "Системный", "OFF": "Оффер", "PROD": "Продукт
 ETAP = {"UNDERSTAND": "Понять", "IDENTIFY": "Узнать себя", "WANT": "Захотеть", "BELIEVE": "Поверить",
         "EVALUATE": "Оценить", "REDUCE RISK": "Снять риск", "ACT": "Действовать", "—": "вне этапов"}
 NAV = [("index.html", "База блоков"), ("cerus.html", "Разбор Церуса"),
-       ("setki.html", "Сетки из Figma"), ("referensy.html", "Референсы"), ("klassifikator.html", "Классификатор")]
+       ("pervyy-ekran.html", "Первый экран"), ("setki.html", "Сетки из Figma"), ("referensy.html", "Референсы"), ("klassifikator.html", "Классификатор")]
 VID = {"m": "Телефон 390", "d": "Десктоп 1280"}
 # порядок карточек: сначала системные, дальше – как блоки идут на странице-образце
 PERVYE = ["tab-bar", "shapka-pilyuli"]
@@ -128,7 +128,14 @@ def card(b, geo):
     setka = ""
     if n is not None:
         setka = (f'<dt style="margin-top:18px">Композиционная сетка – снята с блока-образца</dt>{wires_cerus(geo, n)}')
-    obr = f' <a href="cerus.html#b{n:02d}">Снимки в разборе</a>' if n is not None else ' <a href="cerus.html#mobilka">Снимки в разборе</a>'
+    obr = f' <a href="cerus.html#b{n:02d}">Снимки в разборе</a>' if n is not None else (' <a href="cerus.html#mobilka">Снимки в разборе</a>' if b["tip"] == "SYS" else "")
+    obr_t = "Что видно в образцах" if b.get("refs") and b.get("cerus_blok") is None else "Что сделали у образца"
+    refs = ""
+    if b.get("refs"):
+        th = "".join(f'<button class="shot" type="button" data-zoom="ref/hero/{r.replace(":", "-")}.webp" aria-label="Образец {r}">'
+                     f'<img src="ref/hero/{r.replace(":", "-")}.webp" alt="Образец {r}" loading="lazy"></button>' for r in b["refs"])
+        ch = f' · {e(b["chastota"])}' if b.get("chastota") else ""
+        refs = f'<dt style="margin-top:18px">Образцы из Figma{ch}</dt><dd><div class="ref-g ref-s">{th}</div></dd>'
     return f"""<article class="blok" id="{e(b['id'])}" data-tip="{e(b['tip'])}" data-etap="{e(b['etap'])}">
 <div class="blok-top"><div><h3>{e(b['nazvanie'])}</h3>
 <div class="chips"><span class="chip t">{TIP[b['tip']]} · {b['tip']}</span><span class="chip">Этап: {ETAP[b['etap']].lower()}</span></div></div></div>
@@ -138,7 +145,7 @@ def card(b, geo):
 <div class="demo-bar">{btns}<button class="chip" type="button" data-re>↻ Заново</button><a href="demo/{e(b['id'])}.html" target="_blank" rel="noopener">Открыть отдельно</a></div>
 <div class="stage" data-src="demo/{e(b['id'])}.html" data-v="{vids[0]}" {hs}><div class="wait">Демо включится, когда карточка окажется на экране</div></div>
 </div>
-<dl>{setka}</dl>
+<dl>{setka}{refs}</dl>
 </div>
 <dl>
 <dt>На какой вопрос отвечает</dt><dd class="q">{e(b['vopros'])}</dd>
@@ -149,7 +156,7 @@ def card(b, geo):
 <dt>Как работает</dt><dd>{ul(b['kak_rabotaet'])}</dd>
 <dt>Когда ставить</dt><dd>{e(b['kogda'])}</dd>
 <dt>Когда не ставить</dt><dd>{e(b['ne_kogda'])}</dd>
-<dt>Что сделали у образца</dt><dd>{e(b['u_cerusa'])}{obr}</dd>
+<dt>{obr_t}</dt><dd>{e(b['u_cerusa'])}{obr}</dd>
 <dt>Что дальше по странице</dt><dd>{e(b['sled'])}</dd>
 </dl>
 </div>
@@ -198,6 +205,7 @@ def main():
     SITE.mkdir()
     shutil.copytree(ROOT / "demo", SITE / "demo")
     shutil.copytree(ROOT / "img", SITE / "img")
+    shutil.copytree(ROOT / "ref" / "hero", SITE / "ref" / "hero", ignore=shutil.ignore_patterns("*.json", "*.md"))
     for f in ("page.css", "page.js"):
         shutil.copy(ROOT / "src" / f, SITE / f)
     if (ROOT / "itog.mp3").exists():
@@ -211,6 +219,8 @@ def main():
     import build_dop
     build_cerus.build(bloki, geo)
     build_dop.build(bloki)
+    import build_hero
+    build_hero.build(bloki, geo)
     import build_ref
     print(f"референсов из Figma: {build_ref.build(bloki)}")
     print(f"страниц: {len(list(SITE.glob('*.html')))}, блоков: {len(bloki)}")

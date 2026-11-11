@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: первый экран по центру</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* переключатель режима – только для демо */
+.sw{display:flex;justify-content:center;gap:6px;padding:10px 0 0}
+.sw button{height:32px;padding:0 14px;border-radius:99px;background:var(--soft);font-size:12.5px;font-weight:700}
+.sw button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+/* шапка – отдельный блок, здесь для масштаба */
+.hd{display:flex;align-items:center;justify-content:space-between;height:64px}
+.hd b{padding:8px 14px;border-radius:12px;background:var(--soft);font-size:13px;letter-spacing:.1em}
+.hd nav{display:flex;gap:28px;font-size:13.5px;color:var(--mut)}
+.hd a.call{height:42px;display:flex;align-items:center;padding:0 18px;border-radius:10px;background:var(--soft);font-size:12.5px;font-weight:800;letter-spacing:.06em}
+.hd .bur{display:none;width:42px;height:42px;border-radius:10px;background:var(--soft);place-items:center}
+.hd .bur i{width:18px;height:8px;border-top:2px solid;border-bottom:2px solid}
+
+/* сцена: заголовок по оси, арки по бокам абсолютно */
+.st{position:relative;padding:44px 0 0;min-height:600px}
+.c{position:relative;z-index:2;max-width:900px;margin:0 auto;text-align:center}
+.hh{font:800 clamp(30px,5vw,64px)/1.12 system-ui,sans-serif;letter-spacing:-.025em;text-wrap:balance}
+.w{display:inline-block;vertical-align:middle}
+.hl{padding:0 .28em .06em;border-radius:.5em;background:color-mix(in srgb,var(--acc) 22%,var(--card));color:var(--acc);transform:rotate(-2deg)}
+.ic{width:.78em;height:.78em;color:var(--acc)}
+.ic svg{width:100%;height:100%}
+.sm{width:auto;max-width:9em;font:600 13px/1.25 system-ui,sans-serif;letter-spacing:0;text-align:left;color:var(--mut)}
+.c .lead{max-width:540px;margin:20px auto 0}
+.bt{display:flex;justify-content:center;gap:12px;margin-top:28px}
+.c small{display:block;margin-top:12px;font-size:12px;color:var(--mut)}
+/* анимация слов: до запуска скрыты, затем по одному */
+.anim .w{opacity:0;transform:translateY(.45em)}
+.anim .w.in{opacity:1;transform:none;transition:opacity .7s var(--ease),transform .9s var(--ease)}
+.anim .hl.in{transform:rotate(-2deg);animation:stick .75s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes stick{0%{opacity:0;transform:scale(1.6) rotate(-10deg)}60%{opacity:1;transform:scale(.93) rotate(1deg)}100%{transform:scale(1) rotate(-2deg)}}
+
+/* арки: обёртка следует за мышью, внутри – плавание 6 с */
+.ar{position:absolute;inset:0;pointer-events:none}
+.am{position:absolute;top:210px;width:220px;transition:transform .9s var(--ease)}
+.am.l{left:0}.am.r{right:0;top:170px}
+.af{position:relative;animation:float 6s ease-in-out infinite alternate}
+.am.r .af{animation-delay:-3s}
+@keyframes float{from{transform:translateY(-9px)}to{transform:translateY(9px)}}
+.af .ph{height:290px;border-radius:999px 999px 18px 18px}
+.pl{position:absolute;padding:16px 18px;border-radius:18px;background:color-mix(in srgb,var(--acc) 24%,var(--card));box-shadow:0 18px 40px rgb(0 0 0/.1);font-size:13.5px;line-height:1.5}
+.am.l .pl{left:46%;bottom:-54px;width:210px}
+.am.r .pl{right:-10px;top:-40px;width:190px}
+.pl b{display:block;font-weight:800}
+.pl i{display:block;margin-top:6px;font-size:12px;color:var(--mut)}
+.pl .num{font-size:34px}
+.dc{position:absolute;color:var(--ink);opacity:.6}
+/* второй режим: широкое фото под текстом, чипы в углу */
+.wide{display:none;position:relative;height:380px;margin-top:40px}
+.wide .ph{height:100%;border-radius:24px}
+.chips{position:absolute;left:16px;top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.chips span{display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:99px;background:var(--card);font-size:13px;font-weight:700}
+.chips svg{width:15px;height:15px;color:var(--acc)}
+.hc.wd .ar{display:none}.hc.wd .wide{display:block}.hc.wd .st{min-height:0}
+
+/* нижний ряд: 3 выгоды + кнопка мягкого шага в одной строке */
+.row{display:grid;grid-template-columns:repeat(3,1fr) 1.25fr;gap:12px;margin:56px 0 40px;align-items:stretch}
+.bf{display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:18px;background:var(--card);font-size:13.5px;line-height:1.45}
+.bf .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--soft);color:var(--acc)}
+.bf .ico svg{width:22px;height:22px}
+.go{display:flex;flex-direction:column;justify-content:center;gap:10px;text-align:center}
+.go .btn{display:flex;width:100%}
+.go small{font-size:12px;color:var(--mut)}
+
+@media (max-width:760px){
+  .hd nav,.hd a.call{display:none}.hd .bur{display:grid}
+  .st{padding-top:22px;min-height:0}
+  .hh{font-size:clamp(28px,8.4vw,36px);line-height:1.16}
+  .sm{font-size:11px}
+  .bt{flex-direction:column}.bt .btn{display:flex;width:100%}
+  .ar{position:static;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:30px;pointer-events:auto}
+  .am,.am.r{position:relative;left:auto;right:auto;top:auto;width:auto}
+  .am.r{margin-top:28px}
+  .af .ph{height:210px}
+  .pl{padding:10px 12px;font-size:12px}
+  .am.l .pl{left:10px;right:-6px;bottom:-30px;width:auto}
+  .am.r .pl{left:-6px;right:10px;top:-24px;width:auto}
+  .pl .num{font-size:26px}
+  .dc{display:none}
+  .wide{height:240px;margin-top:28px}
+  .row{grid-template-columns:1fr;gap:8px;margin:48px 0 28px}
+  .bf{flex-direction:row;align-items:center;padding:14px}
+  .bf .ico{flex:none}
+}
+@media (prefers-reduced-motion:reduce){.anim .w{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="sw" role="group" aria-label="Режим демо"><button type="button" aria-pressed="true" data-m="">Фото в арках</button><button type="button" aria-pressed="false" data-m="wd">Широкое фото</button></div>
+<section class="hc wrap" id="hc">
+  <header class="hd"><b>ЛОГО</b><nav><a href="#">Как работаем</a><a href="#">Цены</a><a href="#">Услуги</a></nav><a class="call" href="#">ПОЗВОНИТЬ</a><button class="bur" type="button" aria-label="Меню"><i></i></button></header>
+
+  <div class="st">
+    <svg class="dc" style="left:16%;top:30px" width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z"/></svg>
+    <svg class="dc" style="right:20%;top:84px" width="34" height="18" viewBox="0 0 34 18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 4c6 12 24 12 30 0"/><circle cx="10" cy="3" r="1.5" fill="currentColor"/><circle cx="24" cy="3" r="1.5" fill="currentColor"/></svg>
+    <div class="c">
+      <h1 class="hh" id="hh">
+        <span class="w">Глагол</span> <span class="w">действия</span> <span class="w hl">выделенное слово</span>
+        <span class="w ic"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 1l1.6 5.4L15 8l-5.4 1.6L8 15l-1.6-5.4L1 8l5.4-1.6zM18 13l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg></span>
+        <span class="w">в&nbsp;каком</span> <span class="w ic"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 9v6M7.5 5v14M12 8v8M16.5 4v16M21 9v6"/></svg></span> <span class="w">качестве</span>
+        <span class="w">и&nbsp;для&nbsp;кого</span> <span class="w sm">Ниша и город мелко, внутри строки</span> <span class="w">результат</span>
+      </h1>
+      <p class="lead">Подзаголовок в две строки: как именно делаем, чем это быстрее или дешевле, и какие три стороны результата закрываем</p>
+      <div class="bt"><a class="btn" href="#">Главное действие<i>→</i></a><a class="btn line" href="#">Узнать цены</a></div>
+      <small>Сноска под кнопками: условие или что будет после нажатия</small>
+    </div>
+
+    <div class="ar" id="ar">
+      <div class="am l" data-k="1"><div class="af"><div class="ph" data-l="Фото в арке: команда за работой"></div>
+        <div class="pl"><b>/Вид работ первый</b><b>/Вид работ второй</b><b>/Вид работ третий</b><i>Подпись группы услуг</i></div></div></div>
+      <div class="am r" data-k=".6"><div class="af"><div class="ph" data-l="Фото в арке: процесс крупно"></div>
+        <div class="pl"><span class="num"><span data-n="10">10</span> лет</span><i>Факт: сколько лет делаем именно это</i></div></div></div>
+    </div>
+
+    <div class="wide"><div class="ph" data-l="Широкое фото объекта или процесса во всю сетку"></div>
+      <div class="chips">
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/></svg>Где находимся</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Когда работаем</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Особое условие</span>
+      </div></div>
+  </div>
+
+  <div class="row">
+    <div class="bf rv"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><span>Выгода 1: из чего состоит результат – числом</span></div>
+    <div class="bf rv"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span>Выгода 2: срок – за сколько дней или недель</span></div>
+    <div class="bf rv"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></span><span>Выгода 3: ради чего это человеку, а не «качественно»</span></div>
+    <div class="go rv"><a class="btn" href="#">Мягкий шаг: подборка<i>↓</i></a><small>Что человек получит без звонка: файл, расчёт, видео</small></div>
+  </div>
+</section>
+
+<script type="application/json" id="meta">
+{
+  "id": "hero-centr",
+  "nazvanie": "Первый экран по центру",
+  "tip": "OFF",
+  "etap": "IDENTIFY",
+  "razdel": "pervyy-ekran",
+  "vopros": "Что здесь делают и для кого – можно понять за одну строку?",
+  "smysl": "Весь оффер стоит по оси и читается как одна фраза: в строки заголовка встроены плашка-выделение с главным словом, иконки и мелкая подпись ниши и города. Глаз не мечется между колонками. Фото уходят на края – в арках с плашками-фактами или одним широким кадром под текстом. Снизу ряд из трёх выгод и кнопка мягкого шага для тех, кто ещё не готов звонить. Подходит под рекламу и тёплый трафик с коротким оффером, где решает формулировка, а не каталог.",
+  "setka_d": "Заголовок по оси 8–9 из 12 колонок (до 900 px), 3 строки по 56–64 px; плашка-выделение и иконки 0,8 em стоят в строке, мелкая подпись ниши 13 px – тоже в строке. Подзаголовок до 540 px и 2 кнопки по оси, под ними сноска. Арки 2 из 12 по краям сетки: левая ниже заголовка, правая выше, высота около 290 px, верх скруглён полностью. Плашки фактов заходят на арки: левая – список видов работ снизу-справа, правая – цифра сверху. Второй режим вместо арок: широкое фото 12 из 12 высотой около 380 px, чипы-преимущества в левом верхнем углу. Внизу ряд 3 карточки по 3 колонки + кнопка мягкого шага на 3–4 колонки.",
+  "setka_m": "Шапка: логотип и бургер. Заголовок по оси 28–36 px, иконки и подпись ниши остаются в строке, подпись 11 px. Кнопки столбцом во всю ширину. Две арки рядом 2 + 2 колонки высотой 210 px, правая ниже на 28 px, плашки поверх их края. Выгоды – строки с иконкой слева, кнопка мягкого шага во всю ширину последней.",
+  "animaciya": [
+    "Слова заголовка проявляются по одному: сдвиг 0,45 em снизу и прозрачность, 0,7–0,9 с, шаг 90 мс, старт через 0,25 с",
+    "Плашка-выделение «вклеивается» с отскоком: масштаб 1,6 → 0,93 → 1 и поворот −10° → 1° → −2° за 0,75 с",
+    "Арки плавают вверх-вниз на ±9 px, цикл 6 с туда-обратно, правая в противофазе",
+    "На мыши арки следуют за курсором: левая до 14 px по горизонтали и 10 px по вертикали, правая на 0,6 от этого (глубина), догоняют за 0,9 с; на тач и при reduced-motion стоят",
+    "Цифра на правой плашке досчитывает за 1,4 с, ряд выгод появляется снизу с шагом 80 мс",
+    "При prefers-reduced-motion слова видны сразу, плавание и следование выключены"
+  ],
+  "kak_rabotaet": [
+    "Каждое слово заголовка – отдельный span.w в разметке, вставки (плашка, иконка, мелкая подпись) – тоже span.w, поэтому проявляются в общем ритме",
+    "Скрытие слов включается классом .anim из скрипта: без JS заголовок виден целиком",
+    "Режим «арки / широкое фото» – класс .wd на секции; в демо переключатель сверху, на сайте выбирается один",
+    "Иконки SVG с атрибутами width и height, размер в em, чтобы росли вместе с заголовком",
+    "Нижняя кнопка – не дубль главной, а мягкий шаг (подборка, расчёт, видео) для холодных"
+  ],
+  "kogda": "Услуга или продукт, который объясняется одной фразой: студии, сервисы, курсы, аудит, B2B-услуги. Реклама и тёплый трафик на посадочную, где оффер сильнее каталога. Есть 2 живых кадра процесса или один широкий кадр места.",
+  "ne_kogda": "Длинный оффер с условиями и цифрами – по оси он разваливается в абзац, лучше текст слева и фото справа. Каталог с подбором. Эксперт-личный бренд: там нужен человек крупно, а не арки. Нет живых фото – арки с заглушками выглядят как шаблон.",
+  "u_cerusa": "Заголовок по оси в 2–3 строки на всю ширину, главное слово выделено плашкой, курсивом или рукописным подчёркиванием, в строки вставлены иконки и мелкая подпись с городом. По бокам – фото в арках со светлыми плашками фактов (список видов работ, «N лет»), либо одно широкое фото с чипами-преимуществами. Снизу ряд из трёх карточек-выгод и кнопка в одной строке. Мелкие декоративные звёздочки и смайлы по полям.",
+  "refs": ["254:64", "440:182", "254:20", "2476:2", "254:11", "254:47"],
+  "chastota": "18 из 112 первых экранов в файле",
+  "sled": "Выгоды и цифры: короткая фраза первого экрана сразу раскрывается в доводы.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 900, "m": 800},
+  "cerus_blok": null
+}
+</script>
+<script>
+(function () {
+  var K = Kit, hc = K.$('#hc'), hh = K.$('#hh');
+  // слова по одному
+  if (!K.reduce) {
+    hh.classList.add('anim');
+    K.$$('.w', hh).forEach(function (w, i) { setTimeout(function () { w.classList.add('in') }, 250 + i * 90) });
+  }
+  // режим демо
+  K.$$('.sw button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      K.$$('.sw button').forEach(function (x) { x.setAttribute('aria-pressed', x === b) });
+      hc.classList.toggle('wd', b.dataset.m === 'wd');
+    });
+  });
+  // арки следуют за курсором (только мышь, только на десктопной сетке)
+  if (K.fine && !K.reduce) {
+    var am = K.$$('.am'), raf = 0, mx = 0, my = 0;
+    addEventListener('mousemove', function (e) {
+      mx = e.clientX / innerWidth * 2 - 1; my = e.clientY / innerHeight * 2 - 1;
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = 0; if (K.mob()) return;
+        am.forEach(function (a) { var k = +a.dataset.k; a.style.transform = 'translate(' + (mx * 14 * k).toFixed(1) + 'px,' + (my * 10 * k).toFixed(1) + 'px)' });
+      });
+    }, { passive: true });
+  }
+  K.count(); K.reveal('.row .rv');
+})();
+</script>
+</body>
+</html>

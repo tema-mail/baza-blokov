@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: первый экран с формой</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* переключатель режима – только для демо */
+.sw{display:flex;justify-content:center;gap:6px;padding:10px 0}
+.sw button{height:32px;padding:0 14px;border-radius:99px;background:var(--soft);font-size:12.5px;font-weight:700}
+.sw button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+/* рама экрана: текст 5 | фото 3 | форма 4 */
+.fr{position:relative;display:grid;grid-template-columns:5fr 3fr 4fr;gap:24px;min-height:600px;padding:40px 40px 0;border-radius:32px;overflow:hidden;isolation:isolate;
+  background:linear-gradient(115deg,var(--card) 0 48%,color-mix(in srgb,var(--acc) 14%,var(--card)) 48%)}
+.tx{align-self:center;padding-bottom:40px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chips span{display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:10px;background:var(--soft);font-size:12.5px;font-weight:700}
+.chips svg{width:16px;height:16px;color:var(--acc)}
+.tx h1{font:800 clamp(28px,3.3vw,44px)/1.1 system-ui,sans-serif;letter-spacing:-.02em;text-wrap:balance}
+.tx h1 em{font-style:normal;color:var(--acc)}
+.tx h1 .pill{display:inline-block;padding:2px 14px 4px;border-radius:99px;background:var(--acc);color:var(--acc-ink);font-size:.62em;vertical-align:.18em;white-space:nowrap}
+.bul{list-style:none;display:grid;gap:10px;margin-top:22px}
+.bul li{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.4}
+.bul svg{flex:none;width:22px;height:22px;padding:4px;border-radius:7px;background:color-mix(in srgb,var(--acc) 18%,var(--card));color:var(--acc)}
+.pic{position:relative;align-self:end;height:520px}
+.pic .ph{height:100%;border-radius:22px 22px 0 0}
+.rate{position:absolute;left:-26px;top:40px;width:170px;padding:12px 14px;border-radius:16px;font-size:12px;line-height:1.35}
+.rate b{display:block;font:800 22px/1 system-ui;margin-bottom:4px}
+.rate .st{color:#e3a21a;letter-spacing:2px}
+/* карточка формы: тёмная, въезжает справа */
+.fc{align-self:center;margin-bottom:40px;padding:26px 24px 22px;border-radius:24px;background:var(--dark);color:#fff;box-shadow:0 30px 60px rgb(0 0 0/.18)}
+.fc .h3{font-size:17px;line-height:1.25;text-transform:none}
+.fc .h3+small{display:block;margin:6px 0 18px;font-size:13px;color:#a9adab}
+.fld{display:block;margin-bottom:10px}
+.fld input{width:100%;height:54px;padding:0 16px;border:1.5px solid transparent;border-radius:12px;background:rgb(255 255 255/.08);color:#fff;font-size:16px;outline:none;transition:border-color .3s,background .3s,box-shadow .3s}
+.fld input::placeholder{color:#8d9290}
+.fld input:focus{border-color:var(--acc);background:rgb(255 255 255/.12);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 30%,transparent)}
+.fld.bad input{border-color:#f0a07a;animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.ok{display:flex;align-items:flex-start;gap:10px;margin:6px 0 16px;font-size:12.5px;line-height:1.4;color:#c9ccca;cursor:pointer}
+.ok input{position:absolute;opacity:0;pointer-events:none}
+.ok i{flex:none;width:20px;height:20px;border-radius:6px;border:1.5px solid #6f7472;display:grid;place-items:center;color:transparent;font-style:normal;font-size:12px;font-weight:800;transition:background .3s,color .3s}
+.ok input:checked+i{background:var(--acc);border-color:var(--acc);color:#fff}
+.ok input:focus-visible+i{box-shadow:0 0 0 2px var(--acc)}
+.ok.bad i{border-color:#f0a07a;animation:shake .4s}
+.ok a{text-decoration:underline}
+.fm .btn{display:flex;width:100%}
+.fm.busy .btn{opacity:.6;pointer-events:none}
+.gift{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:12.5px;line-height:1.4;color:#c9ccca}
+.gift b{flex:none;width:46px;height:46px;border-radius:10px;display:grid;place-items:center;background:#fff;color:var(--dark);font-size:14px}
+.when{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:#a9adab}
+.when svg{width:14px;height:14px}
+.done{display:none;text-align:center;padding:20px 0}
+.done span{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 14px;border-radius:50%;background:var(--acc);font-weight:800;font-size:22px}
+.done b{display:block;font:800 18px/1.2 system-ui;text-transform:uppercase}
+.done p{margin:8px 0 14px;font-size:13.5px;color:#c9ccca}
+.done button{font-size:12.5px;text-decoration:underline;color:#a9adab}
+.sent .fm,.sent .gift,.sent .when,.sent .h3,.sent .h3+small{display:none}
+.sent .done{display:block}
+/* второй режим: одно поле в строку под заголовком */
+.one-f{display:none;margin-top:24px;max-width:470px}
+.row1{display:flex;gap:6px;padding:6px;border-radius:16px;background:var(--card);box-shadow:0 0 0 1.5px var(--line)}
+.row1 .fld{flex:1;margin:0}
+.row1 .fld input{height:52px;background:none;color:var(--ink);border-color:transparent}
+.row1 .fld input::placeholder{color:var(--mut)}
+.row1 .btn{width:auto;height:52px}
+.one-f .ok{color:var(--mut);margin:10px 0 0}
+.one-f .ok i{border-color:var(--line)}
+.one-f .gift{color:var(--mut)}
+.one-f .gift b{background:var(--acc);color:#fff}
+.one-f .done{color:var(--ink);text-align:left;padding:14px 0 0}
+.one-f .done span{margin:0 0 10px;color:#fff}
+.one-f .done p{color:var(--mut)}
+.fr.one{grid-template-columns:5fr 7fr}
+.fr.one .fc{display:none}.fr.one .one-f{display:block}
+/* въезд карточки */
+.pre .fc{opacity:0;transform:translateX(80px)}
+.fc.in{opacity:1;transform:none;transition:opacity .8s var(--ease),transform 1s var(--ease)}
+/* под рамой: 3 факта в ряд */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);margin:28px 0 48px}
+.facts div{display:flex;gap:14px;align-items:flex-start;padding:4px 28px;border-left:1px solid var(--line);font-size:13.5px;color:var(--mut)}
+.facts div:first-child{border:0}
+.facts b{display:block;font-size:17px;color:var(--ink)}
+.facts svg{flex:none;width:40px;height:40px;padding:10px;border-radius:10px;background:var(--soft);color:var(--acc)}
+
+@media (max-width:760px){
+  .fr,.fr.one{grid-template-columns:1fr;gap:20px;min-height:0;padding:24px 16px 0;border-radius:26px;background:linear-gradient(180deg,var(--card) 0 60%,color-mix(in srgb,var(--acc) 14%,var(--card)) 60%)}
+  .tx{padding:0}
+  .tx h1{font-size:clamp(26px,7.4vw,32px)}
+  .fc{order:2;margin:0;padding:22px 18px 18px}
+  .pic{order:3;height:300px;margin:0 12%}
+  .rate{left:-12%;top:20px}
+  .one-f{max-width:none}
+  .row1{flex-direction:column}
+  .row1 .btn{width:100%}
+  .facts{grid-template-columns:1fr;gap:16px;margin:24px 0 32px}
+  .facts div{border:0;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="sw" role="group" aria-label="Режим демо"><button type="button" aria-pressed="true" data-m="">Карточка формы</button><button type="button" aria-pressed="false" data-m="one">Одно поле в строку</button></div>
+<section class="wrap">
+  <div class="fr" id="fr">
+    <div class="tx">
+      <div class="chips">
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Срок или дата старта</span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9a13 13 0 0118 0M6.5 12.5a8 8 0 0111 0M10 16a3 3 0 014 0"/></svg>Формат: где и как</span>
+      </div>
+      <h1>Выгода для клиента и <em>результат</em> <span class="pill">за N дней</span></h1>
+      <ul class="bul">
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Пункт 1: что человек получит – конкретно, с числом</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Пункт 2: какой страх снимаем (цена, срок, закон)</li>
+        <li><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>Пункт 3: условие, при котором это работает</li>
+      </ul>
+      <div class="one-f">
+        <form class="fm" novalidate>
+          <div class="row1"><label class="fld"><input name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" aria-label="Телефон"></label><button class="btn" type="submit"><span class="t">Получить расчёт</span><i>→</i></button></div>
+          <label class="ok"><input type="checkbox" name="agree"><i>✓</i><span>Согласен на <a href="#">обработку персональных данных</a></span></label>
+        </form>
+        <div class="gift"><b>−N%</b><span>Подарок или скидка за заявку с этого экрана</span></div>
+        <div class="done" aria-live="polite"><span>✓</span><b>Заявка принята</b><p>Следующий шаг: перезвоним за 15 минут в рабочее время и назовём срок</p><button type="button" data-reset>Показать форму снова</button></div>
+      </div>
+    </div>
+
+    <div class="pic"><div class="ph" data-l="Фото: эксперт или команда по пояс, вырез до нижнего края"></div>
+      <div class="rate glass"><b>5,0 <span class="st">★★★★★</span></b>Рейтинг на площадке отзывов: число и откуда</div></div>
+
+    <div class="fc" id="fc">
+      <b class="h3">Заголовок формы: что человек получит после заявки</b><small>Подарок или инструкция за регистрацию – одной строкой</small>
+      <form class="fm" novalidate>
+        <label class="fld"><input name="name" autocomplete="name" placeholder="Ваше имя" aria-label="Имя"></label>
+        <label class="fld"><input name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" aria-label="Телефон"></label>
+        <label class="ok"><input type="checkbox" name="agree"><i>✓</i><span>Согласен на <a href="#">обработку персональных данных</a></span></label>
+        <button class="btn" type="submit"><span class="t">Получить консультацию</span><i>→</i></button>
+      </form>
+      <div class="gift"><b>−N%</b><span>Скидка или подарок за заявку с этого экрана</span></div>
+      <div class="when"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Срок ответа: перезвоним за 15 минут</div>
+      <div class="done" aria-live="polite"><span>✓</span><b>Заявка принята</b><p>Следующий шаг: перезвоним за 15 минут в рабочее время, подарок пришлём в мессенджер</p><button type="button" data-reset>Показать форму снова</button></div>
+    </div>
+  </div>
+
+  <div class="facts">
+    <div><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg><span><b>Факт 1: гарантия</b>Чем подтверждена – договор, закон</span></div>
+    <div><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg><span><b>Факт 2: объём</b>Сколько сделано в деньгах или штуках</span></div>
+    <div><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg><span><b>Факт 3: срок на рынке</b>Сколько лет и где работаем</span></div>
+  </div>
+</section>
+
+<script type="application/json" id="meta">
+{
+  "id": "hero-forma",
+  "nazvanie": "Первый экран с формой",
+  "tip": "OFF",
+  "etap": "IDENTIFY",
+  "razdel": "pervyy-ekran",
+  "vopros": "Что я получу, за какой срок и как это получить прямо сейчас?",
+  "smysl": "Заявка стоит в самом первом экране: слева выгода со сроком и три пункта, справа карточка формы с подарком за заявку и сроком ответа, между ними – живое лицо (эксперт или команда) с рейтингом. Человеку не нужно листать до формы. Подходит под рекламу и горячий трафик с одним действием – консультация, расчёт, регистрация на вебинар. Второй режим того же блока – одно поле телефона с кнопкой в строку под заголовком, когда форма должна быть легче.",
+  "setka_d": "Рама в скруглённой карточке 32 px с косой цветной плашкой за фото. Колонки 5 + 3 + 4 из 12 с зазором 24 px. Слева: чипы срока и формата, H1 36–44 px с выгодой и сроком на цветной пилюле, 3 пункта с галочками. По центру фото 520 px до нижнего края рамы, на нём стеклянная плашка рейтинга. Справа тёмная карточка формы: заголовок, строка подарка, имя, телефон с маской +7, пустая галочка согласия, кнопка, под ней квадрат скидки с текстом и срок ответа. Под рамой 3 факта с иконками в ряд через тонкие разделители. Второй режим: колонки 5 + 7, карточки нет, под пунктами строка «телефон + кнопка» до 470 px, под ней галочка и подарок.",
+  "setka_m": "Рама на 4 колонки с отступом 16 px: чипы, H1 26–32 px, пункты; затем карточка формы во всю ширину (поля 54 px, кнопка во всю ширину); фото 300 px внизу рамы с плашкой рейтинга. Факты под рамой столбиком. Во втором режиме поле и кнопка встают друг под другом.",
+  "animaciya": [
+    "Карточка формы въезжает справа: сдвиг 80 px и прозрачность за 0,8–1 с, старт через 0,3 с",
+    "Поле в фокусе: акцентная рамка и мягкое кольцо 4 px, фон поля светлеет за 0,3 с",
+    "Ошибка: поле или галочка встряхивается за 0,4 с (±7 px), рамка становится оранжевой; при вводе ошибка снимается",
+    "Отправка: кнопка бледнеет до 60 % и пишет «Отправляем…», через 1,2 с форма сменяется на «Заявка принята» со следующим шагом",
+    "По кнопке бежит блик раз в 3,2 с; при prefers-reduced-motion въезда и тряски нет"
+  ],
+  "kak_rabotaet": [
+    "Маска телефона: при фокусе в пустое поле ставится «+7 (», цифры раскладываются в +7 (___) ___-__-__, первая 7 или 8 отбрасывается, при уходе с одной «+7» поле очищается",
+    "Проверка при отправке: имя от 2 символов (если поле есть), в телефоне 11 цифр, галочка согласия стоит – она пустая по умолчанию и без неё кнопка не отправляет",
+    "Обе формы (карточка и строка) работают на одной функции; режим – класс .one на раме, в демо переключатель сверху",
+    "Отправки нет: ответ сервера имитирует setTimeout 1,2 с. На сайте – POST в обработчик заявок с телефоном, именем, страницей и метками utm",
+    "«Заявка принята» называет следующий шаг и срок; кнопка «Показать форму снова» – только для демо",
+    "Поля ввода 16 px, чтобы телефон не увеличивал страницу при фокусе"
+  ],
+  "kogda": "Посадочная под рекламу с одним действием: консультация юриста, расчёт услуги, запись на вебинар, замер. Горячий трафик из поиска по услуге с городом. Есть что дать за заявку: скидка, инструкция, расчёт.",
+  "ne_kogda": "Главная с каталогом и многими услугами – форма в первом экране давит раньше, чем человек понял, куда попал. Дорогая сложная услуга, где сначала нужно доверие (кейсы, процесс). Нет подарка и срока ответа – форма без причины заполнить работает слабо. Не ставить вторую такую же форму сразу ниже.",
+  "u_cerusa": "Текст слева с выгодой и сроком (срок выделен плашкой), в центре эксперт или команда по пояс до нижнего края, справа форма из двух полей в тёмной карточке с подарком-инструкцией за регистрацию. В шапке – плашки даты старта и формата. Встречается светлая рама с косой цветной плашкой за фото, плашка рейтинга с площадки отзывов поверх фото, квадрат «−15 %» с текстом «заполните форму и получите скидку» под кнопкой и ряд из трёх фактов с иконками под рамой. Облегчённый вариант – одно поле с кнопкой в строку прямо под заголовком.",
+  "refs": ["254:21", "254:57", "254:47"],
+  "chastota": "3 из 112 первых экранов в файле: код F – 1, форма в экране или скидка за форму – ещё 2",
+  "sled": "Факты и гарантии или «как проходит работа»: кто не оставил заявку сразу, ищет доводы ниже.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 820, "m": 800},
+  "cerus_blok": null
+}
+</script>
+<script>
+(function () {
+  var K = Kit, fr = K.$('#fr'), fc = K.$('#fc');
+  function mask(v) {
+    var x = v.replace(/\D/g, '');
+    if (v.indexOf('+7') === 0) x = x.slice(1); else if (x.length === 11 && /^[78]/.test(x)) x = x.slice(1);
+    if (x.length === 1 && /[78]/.test(x)) x = '';
+    x = x.slice(0, 10);
+    var r = '+7 (' + x.slice(0, 3);
+    if (x.length > 3) r += ') ' + x.slice(3, 6);
+    if (x.length > 6) r += '-' + x.slice(6, 8);
+    if (x.length > 8) r += '-' + x.slice(8, 10);
+    return r;
+  }
+  function bad(el) { el.classList.remove('bad'); void el.offsetWidth; el.classList.add('bad') }
+  // одна функция на обе формы: box – контейнер, где живут форма и «спасибо»
+  function bind(box) {
+    var fm = K.$('.fm', box), tel = fm.tel, nm = fm.name, btn = K.$('.btn .t', fm), label = btn.textContent;
+    tel.addEventListener('focus', function () { if (!tel.value) tel.value = '+7 (' });
+    tel.addEventListener('blur', function () { if (tel.value.replace(/\D/g, '').length <= 1) tel.value = '' });
+    tel.addEventListener('input', function () { tel.value = mask(tel.value); tel.closest('.fld').classList.remove('bad') });
+    if (nm) nm.addEventListener('input', function () { nm.closest('.fld').classList.remove('bad') });
+    fm.agree.addEventListener('change', function () { fm.agree.closest('.ok').classList.remove('bad') });
+    fm.addEventListener('submit', function (e) {
+      e.preventDefault(); var ok = true;
+      if (nm && nm.value.trim().length < 2) { bad(nm.closest('.fld')); ok = false }
+      if (tel.value.replace(/\D/g, '').length < 11) { bad(tel.closest('.fld')); ok = false }
+      if (!fm.agree.checked) { bad(fm.agree.closest('.ok')); ok = false }
+      if (!ok || fm.classList.contains('busy')) return;
+      fm.classList.add('busy'); btn.textContent = 'Отправляем…';
+      // имитация ответа сервера: настоящего запроса нет
+      setTimeout(function () { fm.classList.remove('busy'); btn.textContent = label; box.classList.add('sent') }, 1200);
+    });
+    K.$('[data-reset]', box).addEventListener('click', function () { fm.reset(); box.classList.remove('sent') });
+  }
+  bind(fc); bind(K.$('.one-f'));
+  // въезд карточки справа
+  if (!K.reduce) { fr.classList.add('pre'); setTimeout(function () { fc.classList.add('in') }, 300) }
+  // режим демо
+  K.$$('.sw button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      K.$$('.sw button').forEach(function (x) { x.setAttribute('aria-pressed', x === b) });
+      fr.classList.toggle('one', b.dataset.m === 'one');
+    });
+  });
+})();
+</script>
+</body>
+</html>

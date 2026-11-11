@@ -92,6 +92,9 @@ figure{margin:0}
 .strip{max-height:360px;overflow:auto;border-radius:12px;border:1px solid var(--line);display:flex;flex-direction:column}
 .strip .shot{border:0;border-radius:0;max-height:none}
 .strip small{padding:4px 8px}
+.ref-s{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.ref-s .shot:first-child{grid-column:auto;max-height:200px}
+.ref-s .shot{max-height:200px}
 details summary{cursor:pointer;font-weight:600;margin-top:10px}
 
 /* таблицы */

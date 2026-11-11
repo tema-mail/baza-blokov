@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Демо: первый экран с экспертом</title>
+<link rel="stylesheet" href="kit.css">
+<script src="kit.js"></script>
+<style>
+/* тёмная сцена с мягким светом за портретом; шапка-капсула только для масштаба */
+.hero{position:relative;overflow:hidden;isolation:isolate;background:var(--dark);color:#fff;padding:12px 0 0}
+.hero::before{content:"";position:absolute;z-index:-1;right:-10%;top:-10%;width:70%;height:120%;background:radial-gradient(closest-side,color-mix(in srgb,var(--acc) 38%,transparent),transparent)}
+.hd{display:flex;align-items:center;justify-content:space-between;height:52px;padding:0 10px 0 22px;border-radius:14px;font-size:13px;font-weight:700}
+.hd b{letter-spacing:.08em}
+.hd span{padding:9px 14px;border-radius:9px;background:rgb(255 255 255/.12)}
+.mut2{color:rgb(255 255 255/.66)}
+
+/* сетка: текст 6 из 12 слева (две области – текст и действие), портрет 6 из 12 справа до нижнего края */
+.grid{display:grid;grid-template-columns:6fr 6fr;grid-template-areas:"t p" "a p";column-gap:24px;min-height:620px}
+.txt{grid-area:t;align-self:end;padding-top:56px}
+.over{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.over::before{content:"";width:28px;height:1.5px;background:var(--acc)}
+.hero h1{margin-top:16px;font-size:clamp(28px,3.7vw,50px)}
+.hero h1 em{color:color-mix(in srgb,var(--acc) 70%,#fff)}
+.ln{display:block;overflow:hidden;padding-bottom:.06em}
+.ln>span{display:block}
+.hero .lead{color:rgb(255 255 255/.7)}
+.act{grid-area:a;display:flex;align-items:center;gap:22px;align-self:start;padding:30px 0 210px}
+.gift{display:flex;align-items:center;gap:12px;max-width:230px;font-size:12.5px;line-height:1.4}
+.gift i{flex:none;width:44px;height:52px;border-radius:6px 14px 6px 6px;background:rgb(255 255 255/.14);display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:800;transform:rotate(-8deg)}
+.gift b{display:block}
+
+/* портрет: вырезанный человек по пояс, стоит на нижнем крае */
+.por{grid-area:p;position:relative;min-height:600px}
+.man{position:absolute;left:50%;bottom:0;width:min(440px,92%);height:92%;transform:translateX(-50%);will-change:transform}
+.man .ph{position:absolute;background-color:color-mix(in srgb,var(--ph) 40%,var(--dark))}
+.man .ph::after{color:rgb(255 255 255/.6)}
+.head{left:31%;top:0;width:38%;height:30%;border-radius:46% 46% 42% 42%}
+.body{left:0;right:0;bottom:0;height:72%;border-radius:46% 46% 0 0/30% 30% 0 0}
+.body::after{place-items:start center;padding:30% 14% 0}
+.name{position:absolute;z-index:3;right:-4px;top:16%;max-width:190px}
+.name b{display:block;font:700 22px/1.15 system-ui,sans-serif}
+.name small{display:block;margin-top:6px;font-size:12.5px;line-height:1.35;color:rgb(255 255 255/.62)}
+.name svg{margin-top:6px;color:#fff;opacity:.85}
+.name path{stroke-dasharray:1;stroke-dashoffset:0}
+.vid{position:absolute;z-index:3;left:6%;top:42%;width:76px;height:76px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center}
+.vid::before,.vid::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--acc);animation:ring 2.4s cubic-bezier(.2,.6,.3,1) infinite}
+.vid::after{animation-delay:1.2s}
+.vid small{position:absolute;top:100%;margin-top:8px;font-size:11.5px;white-space:nowrap;color:rgb(255 255 255/.7)}
+@keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.7);opacity:0}}
+
+/* стеклянная плашка из 3 цифр поверх низа портрета, заходит в колонку текста */
+.stats{position:absolute;z-index:4;left:-56%;right:4%;bottom:28px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:20px 6px;border-radius:22px}
+.stats div{padding:0 18px}
+.stats div+div{border-left:1px solid rgb(255 255 255/.16)}
+.stats .num{font-size:clamp(28px,3vw,40px)}
+.stats small{display:block;margin-top:6px;font-size:12px;line-height:1.35;color:rgb(255 255 255/.7)}
+.next{height:180px;margin:36px auto 24px}
+
+@media (max-width:760px){
+  .hero{padding-top:8px}
+  .hd span{display:none}
+  .grid{grid-template-columns:1fr;grid-template-areas:"t" "p" "a";min-height:0}
+  .txt{padding-top:30px}
+  .hero h1{font-size:28px}
+  .por{min-height:420px;margin-top:10px}
+  .man{width:300px;height:96%;left:58%}
+  .name{right:auto;left:0;top:6%;max-width:150px}
+  .name b{font-size:17px}
+  .vid{left:auto;right:4%;top:24%;width:60px;height:60px}
+  .stats{left:0;right:0;bottom:12px;padding:14px 0}
+  .por{min-height:440px}
+  .stats div{padding:0 10px}
+  .stats .num{font-size:21px;white-space:nowrap}
+  .stats small{font-size:11px}
+  .act{flex-direction:column;align-items:stretch;gap:16px;padding:18px 0 32px}
+  .act .btn{display:flex}
+  .gift{max-width:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="arr" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+</svg>
+
+<section class="hero">
+  <div class="wrap hd glass dk"><b>ИМЯ ФАМИЛИЯ</b><span>Шапка – отдельный блок</span></div>
+  <div class="wrap grid">
+    <div class="txt">
+      <span class="over rv">Имя эксперта – роль и статус</span>
+      <h1 class="h1"><span class="ln"><span>Результат, который</span></span><span class="ln"><span>получит клиент</span></span><span class="ln"><span><em>за срок в днях</em></span></span></h1>
+      <p class="lead rv">Подзаголовок: для кого работает эксперт и что подтверждает его статус – реестр, лицензия, стаж.</p>
+    </div>
+    <div class="por" id="por">
+      <div class="man" id="man"><div class="ph body" data-l="Вырезанный портрет по пояс, PNG без фона, взгляд в камеру"></div><div class="ph head" data-l="Лицо"></div></div>
+      <div class="name rv"><b>Имя<br>Фамилия</b><small>Подпись: должность и чем отвечает</small><svg viewBox="0 0 140 44" width="140" height="44" aria-hidden="true"><path pathLength="1" d="M4 34c14-4 22-26 30-26 6 0-6 30 2 30 9 0 16-24 24-24 5 0-2 18 4 18 10 0 30-14 72-20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+      <button class="vid rv" type="button" aria-label="Видео: эксперт за минуту"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><small>Видео за 1 минуту</small></button>
+      <div class="stats glass dk" id="stats">
+        <div><b class="num"><span data-n="25">25</span> лет</b><small>Опыт в профессии</small></div>
+        <div><b class="num"><span data-n="300">300</span>+</b><small>Дел или клиентов, что посчитали</small></div>
+        <div><b class="num"><span data-n="2.5">2,5</span> млрд</b><small>Деньги клиентов: сохранили или вернули</small></div>
+      </div>
+    </div>
+    <div class="act rv">
+      <a class="btn" href="#">Получить разбор<i><svg width="18" height="18"><use href="#arr"/></svg></i></a>
+      <div class="gift"><i>PDF</i><span><b>Подарок за заявку</b>Гайд или чек-лист: что внутри одной строкой</span></div>
+    </div>
+  </div>
+</section>
+<div class="wrap ph next" data-l="Следующий блок"></div>
+
+<script type="application/json" id="meta">
+{
+  "id": "hero-ekspert",
+  "nazvanie": "Первый экран с экспертом",
+  "razdel": "pervyy-ekran",
+  "refs": ["750:316", "255:891", "255:785", "255:576", "255:613", "255:748", "254:38"],
+  "chastota": "32 из 112 первых экранов в файле",
+  "tip": "OFF",
+  "etap": "IDENTIFY",
+  "vopros": "Кто этот человек и почему ему можно доверить мою задачу?",
+  "smysl": "Когда продаёт личность, первым экраном показывают её: вырезанный портрет по пояс, имя с подписью и статус прямо в надзаголовке. Заголовок обещает результат со сроком, цифры на стекле поверх портрета подтверждают опыт, а подарок рядом с кнопкой снимает страх «сразу продадут». Хорошо работает на тёплом трафике из соцсетей и на рекламе, где человек уже видел лицо эксперта; из поиска – если в запросе роль и город.",
+  "setka_d": "Тёмная сцена, шапка-капсула с отступом 12 px. Текст 6 из 12 слева: надзаголовок с именем и ролью, H1 в три строки с выделенным сроком, подзаголовок; ниже кнопка и рядом подарок с иконкой документа. Справа 6 из 12 портрет по пояс, стоит на нижнем крае, за ним мягкое цветное свечение. У портрета справа сверху имя, подпись-должность и росчерк; слева на уровне груди круглая кнопка видео. Поверх низа портрета стеклянная плашка из 3 цифр, она заходит в колонку текста.",
+  "setka_m": "Столбиком: надзаголовок, H1, подзаголовок; портрет высотой около 420 px, имя с подписью слева сверху, кнопка видео справа; плашка цифр на всю ширину по низу портрета; кнопка на всю ширину; подарок под ней.",
+  "animaciya": [
+    "Портрет поднимается снизу на 80 px с проявлением за 1,4 с",
+    "Строки заголовка выезжают из-под обрезки: 110 %, 1,1 с, шаг 90 мс",
+    "Имя, кнопка видео, кнопка и подарок появляются сдвигом 30 px с прозрачностью, старт 0,6 с, шаг 80 мс; росчерк подписи прорисовывается за 1,2 с",
+    "Плашка цифр въезжает последней, только сдвигом 40 px без прозрачности (иначе слетает размытие стекла), и досчитывает",
+    "Кнопка видео пульсирует двумя кольцами: масштаб 1 → 1,7 с угасанием, цикл 2,4 с со сдвигом 1,2 с",
+    "Мышь: портрет сдвигается за курсором до 14 px по горизонтали и 8 px по вертикали, имя – в обратную сторону на треть, только на мыши",
+    "При prefers-reduced-motion появление, кольца и параллакс выключены"
+  ],
+  "kak_rabotaet": [
+    "Портрет в демо собран из двух заглушек (голова и торс); на сайте это один PNG или WebP без фона, низ обрезан по краю экрана",
+    "Кнопка видео открывает ролик в окне только по нажатию; до нажатия видео не грузится",
+    "Сетка на областях: на десктопе текст и действие слева, портрет справа на две строки; на телефоне порядок текст – портрет – действие без дублей в разметке",
+    "Цифры: число в data-n, единица рядом обычным текстом; дробные пишутся через запятую",
+    "Подарок – не вторая кнопка, а подпись к главной: что человек получит вместе с заявкой"
+  ],
+  "kogda": "Услуга, где покупают человека: юрист, финансовый советник, врач, риелтор, наставник, автор курса, директор небольшого агентства. Есть хорошая студийная фотосессия и 3 проверяемые цифры.",
+  "ne_kogda": "Компания с командой и объектами – нужен экран с работами. Нет своего портрета с вырезанным фоном – сток или селфи разрушат доверие. Эксперт не готов быть лицом в рекламе и соцсетях.",
+  "u_cerusa": "Эксперт вырезан и стоит по пояс до нижнего края, текст 6 колонок слева. Срок или статус в заголовке выделен цветом, имя и должность у портрета, часто с рукописной подписью. Цифры – стеклянная плашка поверх низа портрета или три плитки под кнопкой. Рядом с кнопкой подарок-PDF, иногда кнопка видео у портрета.",
+  "sled": "Об эксперте подробнее или боли клиента карточками: кто поверил лицу, проверяет, что его ситуация из этих.",
+  "vid": ["d", "m"],
+  "vysota": {"d": 760, "m": 840},
+  "cerus_blok": null
+}
+</script>
+<script>
+(function () {
+  var K = Kit;
+  function from(sel, kf, ms, at, step) {
+    K.$$(sel).forEach(function (el, i) { el.animate(kf, { duration: ms, delay: at + i * (step || 0), easing: K.EXPO, fill: 'backwards' }) });
+  }
+  if (!K.reduce) {
+    from('.man .ph', { transform: ['translateY(80px)', 'none'], opacity: [0, 1] }, 1400, 100);
+    from('.ln>span', { transform: ['translateY(110%)', 'none'] }, 1100, 250, 90);
+    from('.hero .rv', { transform: ['translateY(30px)', 'none'], opacity: [0, 1] }, 1000, 600, 80);
+    from('.name path', { strokeDashoffset: [1, 0] }, 1200, 1100);
+    from('#stats', { transform: ['translateY(40px)', 'none'] }, 1100, 1100);
+  }
+  setTimeout(function () { K.count('#stats [data-n]') }, K.reduce ? 0 : 1100);
+
+  /* параллакс портрета: только мышь */
+  if (K.fine && !K.reduce) {
+    var man = K.$('#man'), nm = K.$('.name'), por = K.$('#por'), raf = 0, tx = 0, ty = 0, cx = 0, cy = 0;
+    addEventListener('mousemove', function (e) {
+      tx = (e.clientX / innerWidth - .5) * 28; ty = (e.clientY / innerHeight - .5) * 16;
+      if (!raf) raf = requestAnimationFrame(tick);
+    }, { passive: true });
+    function tick() {
+      cx += (tx - cx) * .08; cy += (ty - cy) * .08;
+      man.style.transform = 'translate(calc(-50% + ' + cx.toFixed(1) + 'px),' + cy.toFixed(1) + 'px)';
+      nm.style.translate = (-cx / 3).toFixed(1) + 'px ' + (-cy / 3).toFixed(1) + 'px';
+      raf = Math.abs(tx - cx) + Math.abs(ty - cy) > .1 ? requestAnimationFrame(tick) : 0;
+    }
+  }
+  K.$('.vid').addEventListener('click', function () { this.querySelector('small').textContent = 'Здесь откроется ролик' });
+})();
+</script>
+</body>
+</html>
